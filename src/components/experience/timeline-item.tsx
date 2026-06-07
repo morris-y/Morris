@@ -13,7 +13,7 @@ export function TimelineItem({ item, index }: TimelineItemProps) {
 
   return (
     <motion.div
-      initial={shouldReduceMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -16 }}
+      initial={false}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={

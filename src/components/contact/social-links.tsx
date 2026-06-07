@@ -41,7 +41,7 @@ export function SocialLinks() {
 
   return (
     <motion.div
-      initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.5, delay: 0.1 }}
       className="flex flex-wrap gap-3"
@@ -57,6 +57,7 @@ export function SocialLinks() {
                 : {})}
             />
           }
+          nativeButton={false}
           variant="outline"
           className="gap-2"
         >

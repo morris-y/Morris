@@ -9,7 +9,7 @@ export function SkillsSection() {
 
   return (
     <motion.div
-      initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+      initial={false}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.5 }}

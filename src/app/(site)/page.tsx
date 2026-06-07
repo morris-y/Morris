@@ -1,5 +1,5 @@
-import { Hero } from '@/components/hero'
+import { HeroWrapper } from '@/components/hero-wrapper'
 
 export default function HomePage() {
-  return <Hero />
+  return <HeroWrapper />
 }

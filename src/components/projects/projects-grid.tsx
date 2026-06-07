@@ -23,7 +23,7 @@ export function ProjectsGrid() {
   return (
     <motion.div
       variants={shouldReduceMotion ? {} : containerVariants}
-      initial="hidden"
+      initial={false}
       whileInView="visible"
       viewport={{ once: true }}
       className="grid grid-cols-1 md:grid-cols-2 gap-6"

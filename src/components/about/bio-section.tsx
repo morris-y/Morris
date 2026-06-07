@@ -15,9 +15,7 @@ export function BioSection() {
       {paragraphs.map((paragraph, i) => (
         <motion.p
           key={i}
-          initial={
-            shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }
-          }
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={

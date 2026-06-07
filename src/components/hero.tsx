@@ -56,10 +56,10 @@ export function Hero() {
           transition={transition(0.3)}
           className="mt-8 flex flex-wrap items-center justify-center gap-4"
         >
-          <Button render={<Link href="/projects" />} size="lg">
+          <Button render={<Link href="/projects" />} nativeButton={false} size="lg">
             View Projects
           </Button>
-          <Button render={<Link href="/about" />} variant="outline" size="lg">
+          <Button render={<Link href="/about" />} nativeButton={false} variant="outline" size="lg">
             About Me
           </Button>
         </motion.div>
