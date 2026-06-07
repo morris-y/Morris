@@ -1,7 +1,7 @@
 ---
 title: "feat: Build Morris Yang personal portfolio website"
 type: feat
-status: active
+status: completed
 date: 2026-06-07
 ---
 
