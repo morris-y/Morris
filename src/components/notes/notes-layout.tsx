@@ -110,7 +110,7 @@ export function NotesLayout({ folders }: { folders: NoteFolder[] }) {
                 <p className="text-white/30 text-[10px] mt-0.5">{note.date}</p>
               )}
               <p className="text-white/40 text-xs mt-1 line-clamp-2 leading-relaxed">
-                {note.content.replace(/^#+\s.*$/m, '').replace(/#/g, '').substring(0, 80).trim()}
+                {note.content.replace(/<[^>]*>/g, '').replace(/^#+\s.*$/m, '').replace(/#/g, '').substring(0, 80).trim()}
               </p>
             </button>
           ))}
@@ -156,9 +156,13 @@ export function NotesLayout({ folders }: { folders: NoteFolder[] }) {
               )}
             </div>
             <div className="notes-content">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {activeNote.content}
-              </ReactMarkdown>
+              {activeNote.source === 'medium' ? (
+                <div dangerouslySetInnerHTML={{ __html: activeNote.content }} />
+              ) : (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {activeNote.content}
+                </ReactMarkdown>
+              )}
             </div>
           </div>
         ) : (
