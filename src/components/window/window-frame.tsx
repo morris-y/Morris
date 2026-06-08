@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useCallback, useEffect, Suspense } from 'react'
+import { useRef, useCallback, useEffect, useState, Suspense } from 'react'
 import { motion } from 'motion/react'
 import { useWindowStore } from '@/stores/use-window-store'
 import { WindowTitlebar } from './window-titlebar'
@@ -45,12 +45,14 @@ export interface WindowFrameProps {
   size: WindowSize
   isMinimized: boolean
   isFocused: boolean
+  isFullscreen: boolean
   zIndex: number
   minSize?: WindowSize
   children: React.ReactNode
   onClose: () => void
   onMinimize: () => void
   onMaximize: () => void
+  onFullscreen: () => void
   onFocus: () => void
 }
 
@@ -73,16 +75,21 @@ export function WindowFrame({
   size,
   isMinimized,
   isFocused,
+  isFullscreen,
   zIndex,
   minSize = { width: 400, height: 300 },
   children,
   onClose,
   onMinimize,
   onMaximize,
+  onFullscreen,
   onFocus,
 }: WindowFrameProps) {
   const updatePosition = useWindowStore((s) => s.updatePosition)
   const updateSize = useWindowStore((s) => s.updateSize)
+
+  // Fullscreen auto-hides the titlebar; hovering the top edge reveals it (macOS).
+  const [chromeRevealed, setChromeRevealed] = useState(false)
 
   // Refs for drag / resize state (avoids re-renders during pointer move)
   const dragState = useRef<{
@@ -270,7 +277,7 @@ export function WindowFrame({
         pointerEvents: isMinimized ? 'none' : 'auto',
       }}
       className={cn(
-        'flex flex-col rounded-[14px] overflow-hidden glass-window transition-[box-shadow,border-color] duration-200',
+        'flex flex-col rounded-[14px] overflow-hidden glass-window transition-[box-shadow] duration-200',
         isFocused ? 'window-shadow-focused' : 'window-shadow-unfocused'
       )}
       initial={{ scale: 0.96, opacity: 0, y: 10 }}

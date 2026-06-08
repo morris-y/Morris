@@ -121,6 +121,30 @@ export const appRegistry: AppDefinition[] = [
     gradientCss:
       'radial-gradient(ellipse at 40% 26%, #FF5A5F 0%, #E50914 44%, #6B0008 100%)',
     Glyph: MonitorPlay,
+    iconConfig: {
+      // Deep cinema black with a subtle warm-red ambient bleed at top-left
+      background: 'radial-gradient(ellipse at 36% 26%, #2E0A08 0%, #140404 52%, #080202 100%)',
+      // Horizontal CRT scanlines — classic television/projection aesthetic
+      texture:
+        'repeating-linear-gradient(0deg, rgba(0,0,0,0.28) 0px, rgba(0,0,0,0.28) 1px, transparent 1px, transparent 3px)',
+      // Bold italic "N" — unmistakably Netflix, differentiated from About's "M"
+      symbol: (s) => (
+        <span
+          style={{
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Georgia, serif',
+            fontSize: `${Math.round(s * 0.54)}px`,
+            fontWeight: 900,
+            fontStyle: 'italic',
+            color: '#E50914',
+            letterSpacing: '-0.03em',
+            lineHeight: 1,
+          }}
+        >
+          N
+        </span>
+      ),
+      glowColor: 'rgba(229, 9, 20, 0.70)',
+    },
     description: 'Morris, the series',
     windowConstraints: {
       defaultSize: { width: 1040, height: 680 },
