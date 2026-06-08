@@ -399,6 +399,13 @@
     0 14px 36px rgba(0, 0, 0, 0.46);
 }
 
+/* ── Window frame glass — subtle frosted dark panel ────────────────────── */
+.glass-window {
+  background: rgba(28, 28, 36, 0.78);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+}
+
 /* ── App icon squircle (Dock / Spotlight / desktop) ─────────────────────── */
 /* Superellipse-ish corner; gradient fill is set inline per-app. */
 .app-icon-squircle {
