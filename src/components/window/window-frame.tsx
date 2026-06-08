@@ -46,6 +46,8 @@ export interface WindowFrameProps {
   isMinimized: boolean
   isFocused: boolean
   isFullscreen?: boolean
+  /** Window belongs to a Space other than the current one → kept mounted but hidden */
+  isHidden?: boolean
   zIndex: number
   minSize?: WindowSize
   children: React.ReactNode
@@ -76,6 +78,7 @@ export function WindowFrame({
   isMinimized,
   isFocused,
   isFullscreen,
+  isHidden,
   zIndex,
   minSize = { width: 400, height: 300 },
   children,
@@ -90,6 +93,18 @@ export function WindowFrame({
 
   // Fullscreen auto-hides the titlebar; hovering the top edge reveals it (macOS).
   const [chromeRevealed, setChromeRevealed] = useState(false)
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const revealChrome = useCallback(() => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current)
+      hideTimerRef.current = null
+    }
+    setChromeRevealed(true)
+  }, [])
+  const scheduleHideChrome = useCallback(() => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    hideTimerRef.current = setTimeout(() => setChromeRevealed(false), 260)
+  }, [])
 
   // Refs for drag / resize state (avoids re-renders during pointer move)
   const dragState = useRef<{
@@ -262,33 +277,50 @@ export function WindowFrame({
     }
   }, [stableDragMove, stableDragUp, stableResizeMove, stableResizeUp])
 
+  // Reset auto-hide when leaving fullscreen; clear any pending timer on unmount.
+  useEffect(() => {
+    if (!isFullscreen) setChromeRevealed(false)
+  }, [isFullscreen])
+  useEffect(
+    () => () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    },
+    []
+  )
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   const showTitlebar = !isFullscreen || chromeRevealed
 
   return (
     <motion.div
+      data-window
       style={
-        isFullscreen
-          ? {
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              zIndex,
-              transformOrigin: 'center',
-              pointerEvents: 'auto',
-            }
-          : {
-              position: 'absolute',
-              left: position.x,
-              top: position.y,
-              width: size.width,
-              height: size.height,
-              zIndex,
-              transformOrigin: 'bottom center',
-              pointerEvents: isMinimized ? 'none' : 'auto',
-            }
+        isHidden
+          ? { display: 'none' }
+          : isFullscreen
+            ? {
+                // Fixed + high z so the fullscreen window escapes the work-area
+                // clip and covers the menubar + dock. Same mount as a windowed
+                // window (no remount on toggle → app state is preserved).
+                position: 'fixed',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                zIndex: 9000,
+                transformOrigin: 'center',
+                pointerEvents: 'auto',
+              }
+            : {
+                position: 'absolute',
+                left: position.x,
+                top: position.y,
+                width: size.width,
+                height: size.height,
+                zIndex,
+                transformOrigin: 'bottom center',
+                pointerEvents: isMinimized ? 'none' : 'auto',
+              }
       }
       className={cn(
         'flex flex-col overflow-hidden glass-window transition-[box-shadow] duration-200',
@@ -305,24 +337,24 @@ export function WindowFrame({
       transition={{ type: 'spring', stiffness: 460, damping: 34, mass: 0.7 }}
       onPointerDownCapture={handleFocusCapture}
     >
-      {/* Fullscreen: a thin top hover-zone reveals the auto-hidden titlebar */}
-      {isFullscreen && !chromeRevealed && (
+      {/* Fullscreen: a PERSISTENT top hover-zone reveals the auto-hidden titlebar
+          (always mounted so the reveal/hide hand-off can't flicker). */}
+      {isFullscreen && (
         <div
-          className="absolute top-0 inset-x-0 h-2.5 z-50"
-          onMouseEnter={() => setChromeRevealed(true)}
+          className="absolute top-0 inset-x-0 h-3 z-[60]"
+          onMouseEnter={revealChrome}
         />
       )}
 
-      {/* Title bar — drag handle (auto-hides in fullscreen) */}
+      {/* Title bar — drag handle (auto-hides in fullscreen; reveal on top hover) */}
       <motion.div
         className="shrink-0 overflow-hidden"
         animate={{ height: showTitlebar ? 38 : 0 }}
         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-        onMouseLeave={() => {
-          if (isFullscreen) setChromeRevealed(false)
-        }}
+        onMouseEnter={isFullscreen ? revealChrome : undefined}
+        onMouseLeave={isFullscreen ? scheduleHideChrome : undefined}
         style={
-          isFullscreen ? { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 49 } : undefined
+          isFullscreen ? { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 59 } : undefined
         }
       >
         <WindowTitlebar

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图标风格 & 玻璃效果</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    background: #0f0f13;
+    color: #e0e0e8;
+    padding: 32px 24px 60px;
+    min-height: 100vh;
+  }
+
+  h1 { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .sub { font-size: 14px; color: #888; margin-bottom: 32px; }
+
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #555;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #222;
+  }
+
+  /* ── Card grid ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .card {
+    background: #17171d;
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .card:hover { background: #1c1c24; border-color: #333; }
+  .card.selected { border-color: #0a84ff; background: #0a1929; }
+  .card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 12px; right: 14px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #0a84ff;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    display: grid; place-items: center;
+  }
+
+  .card-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #0a84ff;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .card p { font-size: 13px; color: #888; line-height: 1.5; }
+
+  /* ── Icon preview areas ── */
+  .icon-preview {
+    display: flex;
+    gap: 10px;
+    margin: 16px 0 18px;
+    flex-wrap: wrap;
+  }
+
+  /* Style A: Gradient + Lucide SVG (current) */
+  .icon-a {
+    width: 52px; height: 52px;
+    border-radius: 22.37%;
+    display: grid; place-items: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.45),
+      inset 0 -2px 3px rgba(0,0,0,0.22),
+      0 4px 10px rgba(0,0,0,0.35);
+  }
+  .icon-a::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.38), transparent 48%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .icon-a svg { position: relative; z-index: 2; }
+
+  /* Style B: Large emoji on gradient */
+  .icon-b {
+    width: 52px; height: 52px;
+    border-radius: 22.37%;
+    display: grid; place-items: center;
+    font-size: 26px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.3),
+      0 4px 12px rgba(0,0,0,0.4);
+  }
+  .icon-b::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent 55%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .icon-b span { position: relative; z-index: 2; }
+
+  /* Style C: Text/monogram with glass */
+  .icon-c {
+    width: 52px; height: 52px;
+    border-radius: 22.37%;
+    display: grid; place-items: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.25),
+      0 4px 12px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+  }
+
+  /* ── Window glass preview ── */
+  .window-demo {
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 16px 0 18px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .win-titlebar {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 8px;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .win-body {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    font-family: monospace;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .tag-current { background: #2a2a2a; color: #666; }
+  .tag-new { background: #0a2040; color: #0a84ff; }
+  .tag-rec { background: #0a3020; color: #30d158; }
+</style>
+<script>
+function select(el, group) {
+  document.querySelectorAll('[data-group="' + group + '"]').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const choice = el.dataset.choice;
+  const label = el.querySelector('h3').textContent;
+  window.__choices = window.__choices || {};
+  window.__choices[group] = { choice, label };
+  if (window.recordEvent) window.recordEvent('click', choice, group + ':' + label);
+}
+</script>
+</head>
+<body>
+
+<h1>桌面设计方向</h1>
+<p class="sub">选择图标风格和窗口玻璃效果，选完后在终端告诉我你的选择</p>
+
+<!-- ── SECTION 1: ICON STYLE ── -->
+<div class="section-title">Part 1 — 图标风格</div>
+<div class="cards">
+
+  <!-- Option A: Gradient + Lucide (current) -->
+  <div class="card" data-group="icon" data-choice="a" onclick="select(this,'icon')">
+    <div class="card-label">A <span class="tag tag-current">当前</span></div>
+    <div class="icon-preview">
+      <!-- Notes -->
+      <div class="icon-a" style="background: linear-gradient(160deg,#FFD666 0%,#F0A52C 100%)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 1px 1.5px rgba(0,0,0,0.35))"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><polyline points="15 3 15 9 21 9"/></svg>
+      </div>
+      <!-- Terminal -->
+      <div class="icon-a" style="background: linear-gradient(160deg,#3A3A3C 0%,#161618 100%)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 1px 1.5px rgba(0,0,0,0.35))"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="m8 13 4-4-4-4"/><path d="M14 13h2"/></svg>
+      </div>
+      <!-- About -->
+      <div class="icon-a" style="background: linear-gradient(160deg,#3B9BFF 0%,#1F63E0 100%)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 1px 1.5px rgba(0,0,0,0.35))"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+      </div>
+      <!-- Contact -->
+      <div class="icon-a" style="background: linear-gradient(160deg,#46D158 0%,#1F9F38 100%)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 1px 1.5px rgba(0,0,0,0.35))"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      </div>
+    </div>
+    <h3>Gradient + 线条图标</h3>
+    <p>渐变背景配合 Lucide 白色线条图标，macOS 标准风格</p>
+  </div>
+
+  <!-- Option B: Emoji on gradient -->
+  <div class="card" data-group="icon" data-choice="b" onclick="select(this,'icon')">
+    <div class="card-label">B <span class="tag tag-rec">推荐</span></div>
+    <div class="icon-preview">
+      <div class="icon-b" style="background: linear-gradient(160deg,#FFD666 0%,#F0A52C 100%)"><span>📝</span></div>
+      <div class="icon-b" style="background: linear-gradient(160deg,#3A3A3C 0%,#161618 100%)"><span>⌨️</span></div>
+      <div class="icon-b" style="background: linear-gradient(160deg,#3B9BFF 0%,#1F63E0 100%)"><span>🧑‍💻</span></div>
+      <div class="icon-b" style="background: linear-gradient(160deg,#46D158 0%,#1F9F38 100%)"><span>📬</span></div>
+    </div>
+    <h3>Emoji 大图标</h3>
+    <p>彩色 emoji 配上渐变背景，更有个性，视觉辨识度高</p>
+  </div>
+
+  <!-- Option C: SF Symbol-style (custom) -->
+  <div class="card" data-group="icon" data-choice="c" onclick="select(this,'icon')">
+    <div class="card-label">C</div>
+    <div class="icon-preview">
+      <!-- Custom icons with text -->
+      <div class="icon-c" style="background: rgba(255,214,102,0.15);">
+        <span style="font-size:22px;color:#FFD666;">✍</span>
+      </div>
+      <div class="icon-c" style="background: rgba(60,60,70,0.6);">
+        <span style="font-size:16px;color:#aaa;font-family:monospace;font-weight:700;">$_</span>
+      </div>
+      <div class="icon-c" style="background: rgba(59,155,255,0.15);">
+        <span style="font-size:22px;color:#3B9BFF;">◉</span>
+      </div>
+      <div class="icon-c" style="background: rgba(70,209,88,0.15);">
+        <span style="font-size:22px;color:#46D158;">@</span>
+      </div>
+    </div>
+    <h3>玻璃 + 字符图标</h3>
+    <p>半透明玻璃背景配单个字符/符号，极简主义风格</p>
+  </div>
+
+</div>
+
+<!-- ── SECTION 2: GLASS EFFECT ── -->
+<div class="section-title">Part 2 — 窗口玻璃效果</div>
+<div class="cards">
+
+  <!-- Window Option A: No glass (current) -->
+  <div class="card" data-group="glass" data-choice="none" onclick="select(this,'glass')">
+    <div class="card-label">A <span class="tag tag-current">当前</span></div>
+    <div class="window-demo" style="box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+      <div class="win-titlebar" style="background: rgba(46,46,52,0.95);">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+      </div>
+      <div class="win-body" style="background:#1c1c1e;">
+        实心深色背景
+      </div>
+    </div>
+    <h3>实心深色（当前）</h3>
+    <p>纯色窗口，性能最好，没有透明效果</p>
+  </div>
+
+  <!-- Window Option B: Subtle glass -->
+  <div class="card" data-group="glass" data-choice="subtle" onclick="select(this,'glass')">
+    <div class="card-label">B <span class="tag tag-rec">推荐</span></div>
+    <div class="window-demo" style="background: rgba(28,28,34,0.75); backdrop-filter: blur(24px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.5);">
+      <div class="win-titlebar" style="background: rgba(46,46,52,0.85); border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+      </div>
+      <div class="win-body" style="background: rgba(20,20,26,0.6);">
+        半透明模糊背景
+      </div>
+    </div>
+    <h3>微妙玻璃效果</h3>
+    <p>窗口框稍透明，能隐约看到壁纸颜色，macOS 原生感</p>
+  </div>
+
+  <!-- Window Option C: Strong liquid glass -->
+  <div class="card" data-group="glass" data-choice="liquid" onclick="select(this,'glass')">
+    <div class="card-label">C</div>
+    <div class="window-demo" style="background: rgba(40,40,60,0.35); backdrop-filter: blur(48px) saturate(180%); border: 1px solid rgba(255,255,255,0.18); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 32px rgba(0,0,0,0.4);">
+      <div class="win-titlebar" style="background: rgba(80,80,120,0.3); border-bottom: 1px solid rgba(255,255,255,0.12);">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+      </div>
+      <div class="win-body" style="background: rgba(30,30,50,0.25);">
+        液态玻璃效果
+      </div>
+    </div>
+    <h3>液态玻璃（强）</h3>
+    <p>macOS Tahoe 液态玻璃风格，非常透明，壁纸大量透出</p>
+  </div>
+
+</div>
+
+<p style="font-size:13px;color:#555;text-align:center;">选完两个之后，在终端告诉我你的选择（或直接点击选中）</p>
+
+</body>
+</html>

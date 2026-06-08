@@ -1,7 +1,9 @@
 'use client'
 
 import {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -487,26 +489,66 @@ function Thumbnail({ title }: { title: Title }) {
   )
 }
 
-function HoverCard({
-  title,
-  onOpen,
-  inMyList,
-  onToggleList,
-  reduced,
-}: CardProps) {
-  const [hovered, setHovered] = useState(false)
-  const [liked, setLiked] = useState(false)
+/* -------------------------------------------------------------------------- */
+/*  Hover-preview plumbing                                                      */
+/*                                                                              */
+/*  The expanded Netflix preview must float ABOVE the row's horizontal scroll   */
+/*  strip without being clipped (a strip that scrolls on X clips on Y too).     */
+/*  So each card reports its measured rect to a per-row context, and the Row    */
+/*  renders ONE preview in its own non-clipping relative wrapper.               */
+/* -------------------------------------------------------------------------- */
+
+const PREVIEW_WIDTH = 288
+
+interface PreviewRequest {
+  card: CardProps
+  /** card geometry relative to the row's non-clipping wrapper */
+  left: number
+  top: number
+  width: number
+  /** width of the non-clipping wrapper, for edge clamping */
+  wrapWidth: number
+}
+
+interface RowPreviewApi {
+  request: (req: PreviewRequest) => void
+  /** release this card's claim; the row hides after a short grace period */
+  release: (id: string) => void
+  /** keep the active preview alive (called by the floating panel itself) */
+  keepAlive: () => void
+}
+
+const RowPreviewContext = createContext<RowPreviewApi | null>(null)
+
+function HoverCard(props: CardProps) {
+  const { title, onOpen, reduced } = props
+  const preview = useContext(RowPreviewContext)
+  const ref = useRef<HTMLDivElement>(null)
   const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const open = useCallback(() => onOpen(title), [onOpen, title])
 
   const handleEnter = () => {
-    if (reduced) return
-    enterTimer.current = setTimeout(() => setHovered(true), 280)
+    if (reduced || !preview) return
+    enterTimer.current = setTimeout(() => {
+      const el = ref.current
+      if (!el) return
+      const wrap = el.offsetParent
+      if (!(wrap instanceof HTMLElement)) return
+      const r = el.getBoundingClientRect()
+      const w = wrap.getBoundingClientRect()
+      preview.request({
+        card: props,
+        left: r.left - w.left + wrap.scrollLeft,
+        top: r.top - w.top + wrap.scrollTop,
+        width: r.width,
+        wrapWidth: wrap.clientWidth,
+      })
+    }, 280)
   }
   const handleLeave = () => {
     if (enterTimer.current) clearTimeout(enterTimer.current)
-    setHovered(false)
+    preview?.release(title.id)
   }
 
   useEffect(
@@ -518,6 +560,7 @@ function HoverCard({
 
   return (
     <div
+      ref={ref}
       className="relative shrink-0"
       style={{ width: 200 }}
       onMouseEnter={handleEnter}
@@ -534,92 +577,112 @@ function HoverCard({
           <Thumbnail title={title} />
         </button>
       </div>
-
-      <AnimatePresence>
-        {hovered && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 0 }}
-            animate={{ opacity: 1, scale: 1, y: -28 }}
-            exit={{ opacity: 0, scale: 0.92, y: 0, transition: { duration: 0.12 } }}
-            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            className="absolute left-1/2 top-0 z-50 origin-center -translate-x-1/2 overflow-hidden rounded-md shadow-2xl shadow-black/80"
-            style={{ width: 280 }}
-            onClick={open}
-          >
-            {/* enlarged thumb */}
-            <div className="aspect-video w-full overflow-hidden">
-              <Thumbnail title={title} />
-            </div>
-
-            {/* info panel */}
-            <div className="space-y-2 bg-[#181818] p-3">
-              <div className="flex items-center gap-1.5">
-                <RoundIconButton
-                  label="Play"
-                  primary
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (title.url)
-                      window.open(title.url, '_blank', 'noopener,noreferrer')
-                    else open()
-                  }}
-                >
-                  <Play className="h-3.5 w-3.5 fill-current" />
-                </RoundIconButton>
-                <RoundIconButton
-                  label={inMyList ? 'Remove from My List' : 'Add to My List'}
-                  active={inMyList}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onToggleList(title.id)
-                  }}
-                >
-                  {inMyList ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : (
-                    <Plus className="h-3.5 w-3.5" />
-                  )}
-                </RoundIconButton>
-                <RoundIconButton
-                  label="Rate"
-                  active={liked}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setLiked((v) => !v)
-                  }}
-                >
-                  <ThumbsUp className="h-3.5 w-3.5" />
-                </RoundIconButton>
-                <div className="ml-auto">
-                  <RoundIconButton
-                    label="More info"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      open()
-                    }}
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </RoundIconButton>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <MatchBadge value={title.match} />
-                <MaturityBox rating={title.rating} />
-                <HdBadge />
-                <span className="text-[10px] text-white/45">{title.year}</span>
-              </div>
-
-              <TagChips tags={title.tags} />
-
-              <p className="line-clamp-2 text-[11px] leading-relaxed text-white/80">
-                {title.synopsis}
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
+  )
+}
+
+/* The floating expanded panel, rendered once per row in the non-clipping wrapper */
+function HoverPreview({
+  request,
+  api,
+}: {
+  request: PreviewRequest
+  api: RowPreviewApi
+}) {
+  const { card, left, top, width, wrapWidth } = request
+  const { title, onOpen, inMyList, onToggleList } = card
+  const [liked, setLiked] = useState(false)
+  const open = useCallback(() => onOpen(title), [onOpen, title])
+
+  // Grow symmetrically from the card centre, then clamp inside the wrapper so
+  // the first and last cards expand fully inward instead of being cut off.
+  const cardCenter = left + width / 2
+  const maxLeft = Math.max(8, wrapWidth - PREVIEW_WIDTH - 8)
+  const panelLeft = Math.min(maxLeft, Math.max(8, cardCenter - PREVIEW_WIDTH / 2))
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.94 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.12 } }}
+      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+      className="absolute z-[75] origin-center overflow-hidden rounded-md shadow-2xl shadow-black/80"
+      style={{ left: panelLeft, top: top - 28, width: PREVIEW_WIDTH }}
+      onMouseEnter={api.keepAlive}
+      onMouseLeave={() => api.release(title.id)}
+      onClick={open}
+    >
+      {/* enlarged thumb */}
+      <div className="aspect-video w-full overflow-hidden">
+        <Thumbnail title={title} />
+      </div>
+
+      {/* info panel */}
+      <div className="space-y-2 bg-[#181818] p-3">
+        <div className="flex items-center gap-1.5">
+          <RoundIconButton
+            label="Play"
+            primary
+            onClick={(e) => {
+              e.stopPropagation()
+              if (title.url)
+                window.open(title.url, '_blank', 'noopener,noreferrer')
+              else open()
+            }}
+          >
+            <Play className="h-3.5 w-3.5 fill-current" />
+          </RoundIconButton>
+          <RoundIconButton
+            label={inMyList ? 'Remove from My List' : 'Add to My List'}
+            active={inMyList}
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggleList(title.id)
+            }}
+          >
+            {inMyList ? (
+              <Check className="h-3.5 w-3.5" />
+            ) : (
+              <Plus className="h-3.5 w-3.5" />
+            )}
+          </RoundIconButton>
+          <RoundIconButton
+            label="Rate"
+            active={liked}
+            onClick={(e) => {
+              e.stopPropagation()
+              setLiked((v) => !v)
+            }}
+          >
+            <ThumbsUp className="h-3.5 w-3.5" />
+          </RoundIconButton>
+          <div className="ml-auto">
+            <RoundIconButton
+              label="More info"
+              onClick={(e) => {
+                e.stopPropagation()
+                open()
+              }}
+            >
+              <ChevronDown className="h-4 w-4" />
+            </RoundIconButton>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <MatchBadge value={title.match} />
+          <MaturityBox rating={title.rating} />
+          <HdBadge />
+          <span className="text-[10px] text-white/45">{title.year}</span>
+        </div>
+
+        <TagChips tags={title.tags} />
+
+        <p className="line-clamp-2 text-[11px] leading-relaxed text-white/80">
+          {title.synopsis}
+        </p>
+      </div>
+    </motion.div>
   )
 }
 
@@ -629,10 +692,16 @@ function HoverCard({
 
 function RankedCard(props: CardProps) {
   const rank = props.title.rank ?? 0
+  // The single-digit "1" sits flush against the strip's left padding; give the
+  // first ranked card a small lead so its outlined numeral is never clipped.
+  const isFirst = rank === 1
   return (
-    <div className="flex shrink-0 items-end" style={{ width: 270 }}>
+    <div
+      className={cn('flex shrink-0 items-end', isFirst && 'pl-6')}
+      style={{ width: isFirst ? 296 : 270 }}
+    >
       <span
-        className="-mr-3 select-none font-black leading-none"
+        className="-mr-3 select-none font-display font-black leading-none"
         style={{
           fontSize: 110,
           color: 'transparent',
@@ -714,8 +783,49 @@ function Row({
 }) {
   const stripRef = useRef<HTMLDivElement>(null)
   const [hovered, setHovered] = useState(false)
+  const [preview, setPreview] = useState<PreviewRequest | null>(null)
+  const activeId = useRef<string | null>(null)
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearHide = useCallback(() => {
+    if (hideTimer.current) {
+      clearTimeout(hideTimer.current)
+      hideTimer.current = null
+    }
+  }, [])
+
+  const closePreview = useCallback(() => {
+    clearHide()
+    activeId.current = null
+    setPreview(null)
+  }, [clearHide])
+
+  const api = useMemo<RowPreviewApi>(
+    () => ({
+      request: (req) => {
+        clearHide()
+        activeId.current = req.card.title.id
+        setPreview(req)
+      },
+      // Only retire the panel if this card is still the active one and the
+      // pointer hasn't bridged into the floating panel within the grace window.
+      release: (id) => {
+        if (activeId.current !== id) return
+        clearHide()
+        hideTimer.current = setTimeout(() => {
+          activeId.current = null
+          setPreview(null)
+        }, 90)
+      },
+      keepAlive: clearHide,
+    }),
+    [clearHide]
+  )
+
+  useEffect(() => () => clearHide(), [clearHide])
 
   const scrollBy = (dir: 1 | -1) => {
+    closePreview()
     stripRef.current?.scrollBy({ left: dir * SCROLL_STEP, behavior: 'smooth' })
   }
 
@@ -724,7 +834,10 @@ function Row({
       ref={rowRef}
       className="relative scroll-mt-20 py-3"
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={() => {
+        setHovered(false)
+        closePreview()
+      }}
     >
       <div className="mb-2 flex items-center gap-2 px-4 md:px-12">
         <h2 className="text-base font-display font-bold tracking-display text-white/90 md:text-lg">
@@ -733,50 +846,61 @@ function Row({
         {badge}
       </div>
 
-      <div className="group/row relative">
-        {/* left chevron */}
-        <AnimatePresence>
-          {hovered && (
-            <motion.button
-              type="button"
-              aria-label="Scroll left"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => scrollBy(-1)}
-              className="absolute left-0 top-0 z-40 hidden h-full w-10 items-center justify-center bg-gradient-to-r from-black/70 to-transparent text-white/80 hover:text-white md:flex"
-            >
-              <ChevronLeft className="h-7 w-7" />
-            </motion.button>
-          )}
-        </AnimatePresence>
+      <RowPreviewContext.Provider value={api}>
+        <div className="group/row relative">
+          {/* left chevron */}
+          <AnimatePresence>
+            {hovered && (
+              <motion.button
+                type="button"
+                aria-label="Scroll left"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => scrollBy(-1)}
+                className="absolute left-0 top-0 z-[60] hidden h-full w-10 items-center justify-center bg-gradient-to-r from-black/70 to-transparent text-white/80 hover:text-white md:flex"
+              >
+                <ChevronLeft className="h-7 w-7" />
+              </motion.button>
+            )}
+          </AnimatePresence>
 
-        {/* the strip — x scroll, but visible vertically so hover-expand can lift */}
-        <div
-          ref={stripRef}
-          className="scrollbar-none flex gap-2.5 overflow-x-auto overflow-y-visible px-4 pb-6 pt-3 md:px-12"
-          style={{ scrollSnapType: 'x proximity' }}
-        >
-          {children}
+          {/* the strip — horizontal scroll only; the expanded preview is
+              rendered OUTSIDE this clipping box (below) so it is never cut */}
+          <div
+            ref={stripRef}
+            onScroll={closePreview}
+            className="scrollbar-none flex gap-2.5 overflow-x-auto px-4 pb-3 pt-3 md:px-12"
+            style={{ scrollSnapType: 'x proximity' }}
+          >
+            {children}
+          </div>
+
+          {/* right chevron */}
+          <AnimatePresence>
+            {hovered && (
+              <motion.button
+                type="button"
+                aria-label="Scroll right"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => scrollBy(1)}
+                className="absolute right-0 top-0 z-[60] hidden h-full w-10 items-center justify-center bg-gradient-to-l from-black/70 to-transparent text-white/80 hover:text-white md:flex"
+              >
+                <ChevronRight className="h-7 w-7" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* floating expanded preview — lives in this non-clipping wrapper */}
+          <AnimatePresence>
+            {preview && (
+              <HoverPreview key={preview.card.title.id} request={preview} api={api} />
+            )}
+          </AnimatePresence>
         </div>
-
-        {/* right chevron */}
-        <AnimatePresence>
-          {hovered && (
-            <motion.button
-              type="button"
-              aria-label="Scroll right"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => scrollBy(1)}
-              className="absolute right-0 top-0 z-40 hidden h-full w-10 items-center justify-center bg-gradient-to-l from-black/70 to-transparent text-white/80 hover:text-white md:flex"
-            >
-              <ChevronRight className="h-7 w-7" />
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </div>
+      </RowPreviewContext.Provider>
     </section>
   )
 }
@@ -1051,7 +1175,7 @@ function DetailOverlay({
               <div className="space-y-1.5">
                 {title.episodes.map((ep, i) => (
                   <div
-                    key={i}
+                    key={`${title.id}-ep-${i}`}
                     className="flex items-start gap-3 rounded-md bg-white/[0.03] px-3 py-2"
                   >
                     <span className="w-4 shrink-0 text-sm font-bold text-white/35">
@@ -1235,7 +1359,8 @@ function Footer() {
 /*  Root app                                                                    */
 /* -------------------------------------------------------------------------- */
 
-export function NetflixApp({ isFocused }: AppWindowProps) {
+export function NetflixApp(props: AppWindowProps) {
+  const { isFocused } = props
   const reduced = useReducedMotion() ?? false
   const scrollRef = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
@@ -1348,28 +1473,34 @@ export function NetflixApp({ isFocused }: AppWindowProps) {
 
   return (
     <div
-      ref={scrollRef}
       style={rootStyle}
-      className="scrollbar-none relative h-full w-full overflow-y-auto text-white"
+      className="relative h-full w-full overflow-hidden text-white"
     >
-      <NavBar
-        scrolled={scrolled}
-        onNav={handleNav}
-        query={query}
-        setQuery={setQuery}
-      />
-
-      {/* hero only when not actively searching/filtering */}
-      {!filtering && hero && (
-        <Billboard
-          title={hero}
-          reduced={reduced}
-          isFocused={isFocused}
-          onMoreInfo={() => setActive(hero)}
+      {/* scrolling content lives in an inner wrapper so the detail overlay
+          (a sibling below) can pin to the *visible* window via inset-0 instead
+          of the catalog's scroll origin */}
+      <div
+        ref={scrollRef}
+        className="scrollbar-none absolute inset-0 overflow-y-auto"
+      >
+        <NavBar
+          scrolled={scrolled}
+          onNav={handleNav}
+          query={query}
+          setQuery={setQuery}
         />
-      )}
 
-      <div className={cn('relative z-10 pb-2', !filtering && '-mt-10')}>
+        {/* hero only when not actively searching/filtering */}
+        {!filtering && hero && (
+          <Billboard
+            title={hero}
+            reduced={reduced}
+            isFocused={isFocused}
+            onMoreInfo={() => setActive(hero)}
+          />
+        )}
+
+        <div className={cn('relative z-10 pb-2', !filtering && '-mt-10')}>
         {filtering && (
           <div className="px-4 pt-6 md:px-12">
             <p className="text-sm text-white/55">
@@ -1487,10 +1618,12 @@ export function NetflixApp({ isFocused }: AppWindowProps) {
             </div>
           )}
 
-        <Footer />
+          <Footer />
+        </div>
       </div>
 
-      {/* detail overlay */}
+      {/* detail overlay — sibling of the scroll wrapper, so `absolute inset-0`
+          resolves against the visible window frame at any scroll position */}
       <AnimatePresence>
         {active && (
           <DetailOverlay

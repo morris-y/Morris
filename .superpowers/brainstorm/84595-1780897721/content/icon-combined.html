@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analogue Icons — A+C Combined</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  background: #0f0f13;
+  color: #e0e0e8;
+  padding: 32px 28px 60px;
+}
+h1 { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #666; margin-bottom: 32px; }
+
+/* ── Icon sizing contexts ── */
+.contexts { display: flex; flex-direction: column; gap: 32px; }
+
+.ctx-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: #444;
+  margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid #1c1c24;
+}
+.ctx-row { display: flex; align-items: flex-end; gap: 14px; }
+.icon-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.icon-name { font-size: 10px; color: #555; text-align: center; }
+
+/* ── BASE SQUIRCLE ── */
+.sq {
+  border-radius: 22.37%;
+  position: relative;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── NOTES — lined paper on cork ── */
+.notes-icon {
+  background:
+    linear-gradient(160deg, #d4a96a 0%, #b8843a 40%, #9a6820 100%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 3px rgba(0,0,0,0.3),
+    0 6px 16px rgba(0,0,0,0.45);
+}
+/* cork grain via repeating dots */
+.notes-icon::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(180,130,60,0.35) 1px, transparent 1px);
+  background-size: 4px 4px;
+  background-position: 0 0;
+}
+.notes-paper {
+  position: relative; z-index: 2;
+  background: rgba(255,253,240,0.94);
+  border-radius: 3px;
+  display: flex; flex-direction: column; justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+.notes-paper::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent, transparent 7px,
+    rgba(150,170,220,0.35) 7px, rgba(150,170,220,0.35) 8px
+  );
+  background-position: 0 4px;
+}
+.notes-pencil {
+  position: absolute; z-index: 3;
+  bottom: 0; right: 0;
+  font-size: 0;
+  width: 4px;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(180deg, #f5c842, #d4a020);
+}
+
+/* ── TERMINAL — brushed dark aluminum + green code ── */
+.term-icon {
+  background:
+    repeating-linear-gradient(
+      92deg,
+      #22222a 0px, #2a2a34 1px, #22222a 2px, #262630 3px
+    );
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.14),
+    inset 0 -2px 4px rgba(0,0,0,0.55),
+    0 6px 16px rgba(0,0,0,0.55);
+}
+.term-icon::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, transparent 55%);
+}
+.term-code {
+  position: relative; z-index: 2;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-weight: 700;
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0,255,136,0.7);
+  line-height: 1.25;
+  text-align: left;
+}
+
+/* ── PROJECTS — dark woven film ── */
+.proj-icon {
+  background: radial-gradient(ellipse at 30% 25%, #3a2010 0%, #1e1008 60%, #120800 100%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,190,80,0.28),
+    inset 0 -2px 4px rgba(0,0,0,0.6),
+    0 6px 16px rgba(0,0,0,0.55);
+}
+.proj-icon::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 5px, rgba(255,180,60,0.04) 5px, rgba(255,180,60,0.04) 6px),
+    repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(255,180,60,0.04) 5px, rgba(255,180,60,0.04) 6px);
+}
+.proj-clapper {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.proj-board {
+  background: rgba(255,255,255,0.88);
+  border-radius: 2px;
+}
+.proj-stripe {
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(90deg, #1a1a1a 0px, #1a1a1a 4px, white 4px, white 8px);
+  border-radius: 2px 2px 0 0;
+}
+
+/* ── ABOUT — polished glass sphere + monogram ── */
+.about-icon {
+  background: radial-gradient(ellipse at 32% 28%, #7ac0ff 0%, #3474ea 45%, #1040c8 100%);
+  box-shadow:
+    inset 0 2.5px 0 rgba(255,255,255,0.65),
+    inset 0 -3px 5px rgba(0,0,0,0.35),
+    0 6px 20px rgba(30,80,220,0.35),
+    0 2px 6px rgba(0,0,0,0.3);
+}
+/* specular highlight */
+.about-icon::before {
+  content: '';
+  position: absolute; top: 4px; left: 5px;
+  width: 42%; height: 28%;
+  background: rgba(255,255,255,0.52);
+  border-radius: 50%;
+  filter: blur(2px);
+  z-index: 1;
+}
+.about-mono {
+  position: relative; z-index: 2;
+  font-weight: 800;
+  color: rgba(255,255,255,0.92);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  letter-spacing: -0.02em;
+}
+
+/* ── CONTACT — green felt + geometric envelope ── */
+.contact-icon {
+  background: linear-gradient(160deg, #3dc864 0%, #1e8a3c 50%, #0f5a22 100%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.45),
+    inset 0 -2px 3px rgba(0,0,0,0.3),
+    0 6px 16px rgba(0,0,0,0.45);
+}
+.contact-icon::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px
+  );
+}
+.env-wrap {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.env-body {
+  background: rgba(255,255,255,0.92);
+  border-radius: 2px;
+  position: relative;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+.env-flap {
+  position: absolute; top: 0; left: 0; right: 0;
+  background: rgba(200,240,210,0.7);
+  clip-path: polygon(0 0, 50% 55%, 100% 0);
+}
+
+/* ── REEL — vinyl / film reel ── */
+.reel-icon {
+  background: linear-gradient(160deg, #d060c0 0%, #8030c0 50%, #4010a0 100%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.45),
+    inset 0 -2px 3px rgba(0,0,0,0.3),
+    0 6px 16px rgba(0,0,0,0.45);
+}
+.reel-icon::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-conic-gradient(
+    rgba(255,255,255,0.04) 0deg, rgba(0,0,0,0.04) 30deg,
+    rgba(255,255,255,0.04) 60deg, rgba(0,0,0,0.04) 90deg,
+    rgba(255,255,255,0.04) 120deg, rgba(0,0,0,0.04) 150deg
+  );
+}
+.reel-symbol {
+  position: relative; z-index: 2;
+  font-weight: 900;
+  color: rgba(255,255,255,0.92);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* ── Dark desktop wallpaper preview ── */
+.desktop-preview {
+  margin-top: 16px;
+  background:
+    radial-gradient(60% 55% at 18% 12%, rgba(124, 77, 255, 0.4), transparent 60%),
+    radial-gradient(55% 55% at 86% 88%, rgba(255, 64, 180, 0.3), transparent 62%),
+    radial-gradient(120% 120% at 25% 8%, #1d1452 0%, #100c30 46%, #08060f 100%);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.desktop-label { font-size: 10px; color: #555; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<h1>A + C 组合 — Analogue Icons</h1>
+<p class="sub">实体材质背景 (A) × 干净符号元素 (C) — 统一左上光源</p>
+
+<div class="contexts">
+
+  <!-- Large: 64px — Dock hover -->
+  <div>
+    <div class="ctx-label">Dock（64px）</div>
+    <div class="ctx-row">
+
+      <!-- Notes: 64px -->
+      <div class="icon-wrap">
+        <div class="sq notes-icon" style="width:64px;height:64px;">
+          <div class="notes-paper" style="width:40px;height:46px;"></div>
+          <div class="notes-pencil" style="width:5px;height:18px;bottom:8px;right:8px;"></div>
+        </div>
+        <div class="icon-name">Notes</div>
+      </div>
+
+      <!-- Terminal: 64px -->
+      <div class="icon-wrap">
+        <div class="sq term-icon" style="width:64px;height:64px;">
+          <div class="term-code" style="font-size:12px;">$&nbsp;_<br>&gt;&nbsp;</div>
+        </div>
+        <div class="icon-name">Terminal</div>
+      </div>
+
+      <!-- Projects: 64px -->
+      <div class="icon-wrap">
+        <div class="sq proj-icon" style="width:64px;height:64px;">
+          <div class="proj-clapper">
+            <div class="proj-board" style="width:36px;height:26px;">
+              <div class="proj-stripe" style="height:9px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="icon-name">Projects</div>
+      </div>
+
+      <!-- About: 64px -->
+      <div class="icon-wrap">
+        <div class="sq about-icon" style="width:64px;height:64px;">
+          <div class="about-mono" style="font-size:26px;">M</div>
+        </div>
+        <div class="icon-name">About</div>
+      </div>
+
+      <!-- Contact: 64px -->
+      <div class="icon-wrap">
+        <div class="sq contact-icon" style="width:64px;height:64px;">
+          <div class="env-wrap">
+            <div class="env-body" style="width:38px;height:26px;">
+              <div class="env-flap" style="height:13px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="icon-name">Contact</div>
+      </div>
+
+      <!-- Reel: 64px -->
+      <div class="icon-wrap">
+        <div class="sq reel-icon" style="width:64px;height:64px;">
+          <div class="reel-symbol" style="font-size:28px;">∿</div>
+        </div>
+        <div class="icon-name">Reel</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Medium: 48px — Desktop shortcut -->
+  <div>
+    <div class="ctx-label">桌面快捷方式（48px）</div>
+    <div class="ctx-row">
+      <div class="icon-wrap">
+        <div class="sq notes-icon" style="width:48px;height:48px;">
+          <div class="notes-paper" style="width:30px;height:34px;"></div>
+        </div>
+        <div class="icon-name" style="font-size:9px;">Notes</div>
+      </div>
+      <div class="icon-wrap">
+        <div class="sq term-icon" style="width:48px;height:48px;">
+          <div class="term-code" style="font-size:9px;">$&nbsp;_<br>&gt;&nbsp;</div>
+        </div>
+        <div class="icon-name" style="font-size:9px;">Terminal</div>
+      </div>
+      <div class="icon-wrap">
+        <div class="sq proj-icon" style="width:48px;height:48px;">
+          <div class="proj-clapper">
+            <div class="proj-board" style="width:28px;height:20px;">
+              <div class="proj-stripe" style="height:7px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="icon-name" style="font-size:9px;">Projects</div>
+      </div>
+      <div class="icon-wrap">
+        <div class="sq about-icon" style="width:48px;height:48px;">
+          <div class="about-mono" style="font-size:20px;">M</div>
+        </div>
+        <div class="icon-name" style="font-size:9px;">About</div>
+      </div>
+      <div class="icon-wrap">
+        <div class="sq contact-icon" style="width:48px;height:48px;">
+          <div class="env-wrap">
+            <div class="env-body" style="width:28px;height:20px;">
+              <div class="env-flap" style="height:10px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="icon-name" style="font-size:9px;">Contact</div>
+      </div>
+      <div class="icon-wrap">
+        <div class="sq reel-icon" style="width:48px;height:48px;">
+          <div class="reel-symbol" style="font-size:22px;">∿</div>
+        </div>
+        <div class="icon-name" style="font-size:9px;">Reel</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wallpaper context preview -->
+  <div>
+    <div class="ctx-label">实际桌面效果（Tahoe 壁纸背景）</div>
+    <div class="desktop-preview">
+      <div class="ctx-row">
+        <div class="icon-wrap">
+          <div class="sq notes-icon" style="width:56px;height:56px;">
+            <div class="notes-paper" style="width:34px;height:40px;"></div>
+          </div>
+          <div class="icon-name" style="color:rgba(255,255,255,0.7);text-shadow:0 1px 2px rgba(0,0,0,0.8);">Notes</div>
+        </div>
+        <div class="icon-wrap">
+          <div class="sq term-icon" style="width:56px;height:56px;">
+            <div class="term-code" style="font-size:10px;">$&nbsp;_<br>&gt;&nbsp;</div>
+          </div>
+          <div class="icon-name" style="color:rgba(255,255,255,0.7);text-shadow:0 1px 2px rgba(0,0,0,0.8);">Terminal</div>
+        </div>
+        <div class="icon-wrap">
+          <div class="sq proj-icon" style="width:56px;height:56px;">
+            <div class="proj-clapper">
+              <div class="proj-board" style="width:32px;height:22px;">
+                <div class="proj-stripe" style="height:8px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="icon-name" style="color:rgba(255,255,255,0.7);text-shadow:0 1px 2px rgba(0,0,0,0.8);">Projects</div>
+        </div>
+        <div class="icon-wrap">
+          <div class="sq about-icon" style="width:56px;height:56px;">
+            <div class="about-mono" style="font-size:22px;">M</div>
+          </div>
+          <div class="icon-name" style="color:rgba(255,255,255,0.7);text-shadow:0 1px 2px rgba(0,0,0,0.8);">About</div>
+        </div>
+        <div class="icon-wrap">
+          <div class="sq contact-icon" style="width:56px;height:56px;">
+            <div class="env-wrap">
+              <div class="env-body" style="width:32px;height:22px;">
+                <div class="env-flap" style="height:11px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="icon-name" style="color:rgba(255,255,255,0.7);text-shadow:0 1px 2px rgba(0,0,0,0.8);">Contact</div>
+        </div>
+        <div class="icon-wrap">
+          <div class="sq reel-icon" style="width:56px;height:56px;">
+            <div class="reel-symbol" style="font-size:24px;">∿</div>
+          </div>
+          <div class="icon-name" style="color:rgba(255,255,255,0.7);text-shadow:0 1px 2px rgba(0,0,0,0.8);">Reel</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="font-size:12px;color:#444;text-align:center;margin-top:28px;">满意就在终端说「可以」，想调整哪个 app 的材质也可以告诉我</p>
+
+</body>
+</html>

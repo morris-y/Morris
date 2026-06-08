@@ -1,11 +1,5 @@
-import { getAllFolders } from '@/lib/notes'
-import { NotesLayout } from '@/components/notes/notes-layout'
+import { redirect } from 'next/navigation'
 
-export const metadata = {
-  title: 'Notes — Morris Yang',
-}
-
-export default async function NotesPage() {
-  const folders = await getAllFolders()
-  return <NotesLayout folders={folders} />
+export default function Page() {
+  redirect('/')
 }

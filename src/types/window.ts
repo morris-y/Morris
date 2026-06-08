@@ -34,12 +34,27 @@ export interface AppInstance {
   appId: AppId
   isMinimized: boolean
   isZoomed: boolean
+  isFullscreen: boolean
+  /** Which Space (desktop / fullscreen) this window currently lives in */
+  spaceId: string
   /** Frame to restore to when un-zooming (set while zoomed) */
   prevFrame?: { position: WindowPosition; size: WindowSize }
+  /** Frame + origin space to restore to when leaving fullscreen */
+  preFullscreen?: { position: WindowPosition; size: WindowSize; spaceId: string }
   position: WindowPosition
   size: WindowSize
   title: string
   zIndex: number
+}
+
+export type SpaceKind = 'desktop' | 'fullscreen'
+
+export interface Space {
+  id: string
+  kind: SpaceKind
+  name: string
+  /** For fullscreen spaces: the single window that owns this space */
+  fullscreenInstanceId?: string
 }
 
 export interface AppWindowProps {

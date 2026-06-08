@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useWindowStore } from '@/stores/use-window-store'
 import { getAppById } from '@/config/app-registry'
@@ -11,6 +11,7 @@ import { Dock } from './dock'
 import { Wallpaper } from './wallpaper'
 import { BootScreen } from './boot-screen'
 import { Spotlight } from './spotlight'
+import { MissionControl } from './mission-control'
 import type { AppId } from '@/types/window'
 
 // Desktop shortcut apps (top-left grid)
@@ -30,6 +31,12 @@ export function Desktop() {
   const zoomApp = useWindowStore((s) => s.zoomApp)
   const focusApp = useWindowStore((s) => s.focusApp)
   const launchAppStore = useWindowStore((s) => s.launchApp)
+  const spaces = useWindowStore((s) => s.spaces)
+  const currentSpaceId = useWindowStore((s) => s.currentSpaceId)
+  const missionControlOpen = useWindowStore((s) => s.missionControlOpen)
+  const switchSpace = useWindowStore((s) => s.switchSpace)
+  const setMissionControl = useWindowStore((s) => s.setMissionControl)
+  const toggleFullscreen = useWindowStore((s) => s.toggleFullscreen)
 
   // Boot once per browser session (no replay on refresh)
   const [bootComplete, setBootComplete] = useState(() => {
@@ -45,10 +52,17 @@ export function Desktop() {
   const [launchingIcon, setLaunchingIcon] = useState<AppId | null>(null)
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
 
-  // Focus is the topmost NON-minimized window. Minimizing therefore hands focus
-  // (and keyboard shortcuts + the menubar's active app) to the window behind it.
+  // All windows live in ONE always-mounted list; a window not on the current
+  // Space is hidden (display:none) rather than unmounted — so app state survives
+  // Space switches AND fullscreen toggles (no remount). Focus = topmost
+  // non-minimized window in the current Space (the fullscreen window when its
+  // own Space is current).
   const focusedInstanceId =
-    [...instanceOrder].reverse().find((id) => instances[id] && !instances[id].isMinimized) ?? null
+    [...instanceOrder]
+      .reverse()
+      .find(
+        (id) => instances[id] && instances[id].spaceId === currentSpaceId && !instances[id].isMinimized
+      ) ?? null
 
   const launchApp = useCallback(
     (appId: AppId) => {
@@ -93,12 +107,93 @@ export function Desktop() {
     setContextMenu({ x: e.clientX, y: e.clientY })
   }, [])
 
+  // Switch only among DESKTOP spaces (arrows never drop into another window's
+  // fullscreen Space — fullscreen is entered via the green button / Ctrl+Cmd+F).
+  const stepSpace = useCallback(
+    (delta: number) => {
+      const desktops = spaces.filter((s) => s.kind === 'desktop')
+      if (desktops.length === 0) return
+      const idx = desktops.findIndex((s) => s.id === currentSpaceId)
+      if (idx === -1) {
+        switchSpace(desktops[0].id) // from a fullscreen Space → first desktop
+        return
+      }
+      const next = Math.min(Math.max(idx + delta, 0), desktops.length - 1)
+      switchSpace(desktops[next].id)
+    },
+    [spaces, currentSpaceId, switchSpace]
+  )
+
+  // Trackpad gestures — the only trackpad signal a browser receives is `wheel`.
+  // A 2-finger horizontal swipe over the desktop switches Spaces; a strong swipe
+  // up opens Mission Control. Neither collides with macOS system shortcuts.
+  const gestureLock = useRef(false)
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      if (gestureLock.current) return
+      if ((e.target as HTMLElement).closest('[data-window]')) return // over a window → let it scroll
+      const ax = Math.abs(e.deltaX)
+      const ay = Math.abs(e.deltaY)
+      if (ax > 38 && ax > ay * 1.4) {
+        gestureLock.current = true
+        stepSpace(e.deltaX > 0 ? 1 : -1)
+        setTimeout(() => {
+          gestureLock.current = false
+        }, 480)
+      } else if (e.deltaY > 42 && ay > ax * 1.4 && !missionControlOpen) {
+        // Swipe UP opens Mission Control (natural scrolling → up = positive deltaY)
+        gestureLock.current = true
+        setMissionControl(true)
+        setTimeout(() => {
+          gestureLock.current = false
+        }, 480)
+      }
+    },
+    [stepSpace, missionControlOpen, setMissionControl]
+  )
+
   // Keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       const mod = e.metaKey || e.ctrlKey
 
-      // Cmd+Space — toggle Spotlight (works regardless of state)
+      // Mission Control — Ctrl+Up or F3 (F3 guarded against stray modifiers)
+      if (
+        (e.ctrlKey && !e.metaKey && e.key === 'ArrowUp') ||
+        (e.key === 'F3' && !e.metaKey && !e.altKey && !e.shiftKey)
+      ) {
+        e.preventDefault()
+        setMissionControl(!missionControlOpen)
+        return
+      }
+
+      // While Mission Control is open: only Space navigation + close
+      if (missionControlOpen) {
+        if (e.key === 'Escape' || (e.ctrlKey && e.key === 'ArrowDown')) {
+          e.preventDefault()
+          setMissionControl(false)
+        } else if (e.ctrlKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+          e.preventDefault()
+          stepSpace(e.key === 'ArrowRight' ? 1 : -1)
+        }
+        return
+      }
+
+      // Ctrl+Cmd+F — toggle fullscreen on the focused window
+      if (e.ctrlKey && e.metaKey && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault()
+        if (focusedInstanceId) toggleFullscreen(focusedInstanceId)
+        return
+      }
+
+      // Ctrl+Left / Ctrl+Right — switch Spaces
+      if (e.ctrlKey && !e.metaKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+        e.preventDefault()
+        stepSpace(e.key === 'ArrowRight' ? 1 : -1)
+        return
+      }
+
+      // Cmd+Space — toggle Spotlight
       if (mod && e.key === ' ') {
         e.preventDefault()
         setSpotlightOpen((open) => !open)
@@ -130,8 +225,16 @@ export function Desktop() {
         return
       }
 
-      // Escape — dismiss context menu / selection
+      // Escape — exit fullscreen first, else dismiss context menu / selection
       if (e.key === 'Escape') {
+        if (
+          focusedInstanceId &&
+          useWindowStore.getState().instances[focusedInstanceId]?.isFullscreen
+        ) {
+          e.preventDefault()
+          toggleFullscreen(focusedInstanceId)
+          return
+        }
         setContextMenu(null)
         setSelectedIcon(null)
       }
@@ -139,7 +242,18 @@ export function Desktop() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [focusedInstanceId, closeApp, minimizeApp, spotlightOpen, selectedIcon, launchApp])
+  }, [
+    focusedInstanceId,
+    closeApp,
+    minimizeApp,
+    spotlightOpen,
+    selectedIcon,
+    launchApp,
+    missionControlOpen,
+    setMissionControl,
+    toggleFullscreen,
+    stepSpace,
+  ])
 
   // Menubar (and any other surface) can open Spotlight via a custom event
   useEffect(() => {
@@ -158,12 +272,13 @@ export function Desktop() {
         className="font-system fixed inset-0 overflow-hidden"
         onContextMenu={handleContextMenu}
         onClick={handleDesktopClick}
+        onWheel={handleWheel}
       >
         <Wallpaper />
         <Menubar />
 
-        {/* Desktop shortcut icons — top-left */}
-        <div className="absolute top-10 left-4 flex flex-col gap-5 pt-3 select-none">
+        {/* Desktop shortcut icons — top-left (covered by a fullscreen window) */}
+        <div className="absolute top-[168px] left-4 flex flex-col gap-5 select-none">
           {DESKTOP_SHORTCUTS.map((appId) => {
             const appDef = getAppById(appId)
             if (!appDef) return null
@@ -213,9 +328,12 @@ export function Desktop() {
           })}
         </div>
 
-        {/* Window area — between menubar (28px) and dock area (80px) */}
+        {/* Window area — ALL windows (every Space) live here in ONE AnimatePresence
+            and stay mounted; a window not on the current Space is hidden, and a
+            fullscreen window escapes this box via position:fixed. No remount on
+            Space switch or fullscreen toggle → app state is preserved. */}
         <div className="absolute inset-x-0 top-7 bottom-20 overflow-hidden pointer-events-none">
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {instanceOrder.map((instanceId) => {
               const inst = instances[instanceId]
               if (!inst) return null
@@ -234,11 +352,14 @@ export function Desktop() {
                   size={inst.size}
                   isMinimized={inst.isMinimized}
                   isFocused={isFocused}
+                  isFullscreen={inst.isFullscreen}
+                  isHidden={inst.spaceId !== currentSpaceId}
                   zIndex={inst.zIndex}
                   minSize={appDef.windowConstraints.minSize}
                   onClose={() => closeApp(instanceId)}
                   onMinimize={() => minimizeApp(instanceId)}
                   onMaximize={() => zoomApp(instanceId)}
+                  onFullscreen={() => toggleFullscreen(instanceId)}
                   onFocus={() => focusApp(instanceId)}
                 >
                   {/* Per-window Suspense lives INSIDE WindowFrame, so a freshly
@@ -282,6 +403,9 @@ export function Desktop() {
           setSpotlightOpen(false)
         }}
       />
+
+      {/* Mission Control — Spaces + window spread (Ctrl↑ / F3 / menubar button) */}
+      <MissionControl />
     </>
   )
 }
@@ -313,14 +437,14 @@ function DesktopContextMenu({
 
   return (
     <>
-      <div className="fixed inset-0 z-[7000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose() }} />
+      <div className="fixed inset-0 z-ctx-backdrop" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose() }} />
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
         style={{ left, top, transformOrigin: 'top left' }}
-        className="font-system glass-panel fixed z-[7001] w-[220px] rounded-xl p-1.5"
+        className="font-system glass-panel fixed z-ctx-menu w-[220px] rounded-xl p-1.5"
         onClick={(e) => e.stopPropagation()}
       >
         <button className={item} onClick={() => { onLaunch('about'); onClose() }}>About Morris</button>

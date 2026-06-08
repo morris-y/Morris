@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analogue Icon 风格选择</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  background: #0f0f13;
+  color: #e0e0e8;
+  padding: 28px 24px 60px;
+  min-height: 100vh;
+}
+h1 { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #666; margin-bottom: 28px; }
+.section-title {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: #444; margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 1px solid #1e1e26;
+}
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 40px; }
+.card {
+  background: #16161c; border: 2px solid transparent;
+  border-radius: 16px; padding: 20px 16px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s; position: relative;
+}
+.card:hover { background: #1c1c24; border-color: #2a2a38; }
+.card.selected { border-color: #0a84ff; background: #091828; }
+.card.selected::after {
+  content: '✓'; position: absolute; top: 10px; right: 12px;
+  width: 20px; height: 20px; border-radius: 50%; background: #0a84ff;
+  color: #fff; font-size: 11px; font-weight: 700;
+  display: grid; place-items: center;
+}
+.card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #0a84ff; margin-bottom: 10px; font-weight: 600; }
+.card h3 { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+.card p { font-size: 12px; color: #777; line-height: 1.5; }
+
+/* Icon preview row */
+.icon-row { display: flex; gap: 8px; margin: 14px 0 16px; flex-wrap: wrap; }
+
+/* ── STYLE A: Physical Material (pre-iOS7 classic) ── */
+/* Notes: cork + paper */
+.icon-notes-a {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: linear-gradient(160deg, #e8d5a3 0%, #c8a96e 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.25), 0 5px 12px rgba(0,0,0,0.4);
+}
+.icon-notes-a::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(139,100,40,0.07) 3px, rgba(139,100,40,0.07) 4px); }
+.icon-notes-a::after { content: '📝'; font-size: 24px; position: relative; z-index: 2; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
+
+/* Terminal: brushed dark metal */
+.icon-term-a {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: repeating-linear-gradient(90deg, #252528 0px, #2e2e32 1px, #252528 2px, #282830 3px);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.15), inset 0 -2px 3px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.5);
+}
+.icon-term-a::before { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,0.08) 0%, transparent 50%); }
+.icon-term-a-inner { font-family: monospace; font-size: 13px; font-weight: 700; color: #00ff88; position: relative; z-index: 2; text-shadow: 0 0 8px rgba(0,255,136,0.6); }
+
+/* Projects: film-reel dark plastic */
+.icon-proj-a {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: radial-gradient(ellipse at 30% 25%, #4a3520 0%, #2a1e10 60%, #1a1008 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.2), inset 0 -2px 3px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.5);
+}
+.icon-proj-a::after { content: '🎬'; font-size: 24px; position: relative; z-index: 2; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+
+/* About: polished glass/crystal sphere */
+.icon-about-a {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: radial-gradient(ellipse at 35% 30%, #6ab0ff 0%, #2563d4 50%, #0f3fa0 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -3px 4px rgba(0,0,0,0.3), 0 5px 14px rgba(0,100,255,0.3);
+}
+.icon-about-a::before { content: ''; position: absolute; top: 3px; left: 4px; width: 20px; height: 12px; background: rgba(255,255,255,0.35); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; filter: blur(1px); }
+.icon-about-a::after { content: '🧑‍💻'; font-size: 22px; position: relative; z-index: 2; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+
+/* Contact: stamped envelope + green felt */
+.icon-contact-a {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: linear-gradient(160deg, #3dba5e 0%, #1d7838 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.4), inset 0 -2px 3px rgba(0,0,0,0.25), 0 5px 12px rgba(0,0,0,0.4);
+}
+.icon-contact-a::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent, transparent 4px, rgba(255,255,255,0.03) 4px, rgba(255,255,255,0.03) 5px); }
+.icon-contact-a::after { content: '📬'; font-size: 24px; position: relative; z-index: 2; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+
+/* ── STYLE B: Rendered 3D (Blender/Cinema4D look) ── */
+.icon-notes-b {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: linear-gradient(145deg, #fff9e0 0%, #f5e89a 40%, #d4b84a 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), inset 0 -3px 5px rgba(150,100,0,0.3), 0 6px 18px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.3);
+}
+.icon-notes-b::after { content: '✏️'; font-size: 26px; position: relative; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+
+.icon-term-b {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: linear-gradient(145deg, #3a3a40 0%, #1e1e22 60%, #111116 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.25), inset 0 -3px 5px rgba(0,0,0,0.6), 0 6px 18px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.4);
+}
+.icon-term-b-inner { font-family: 'SF Mono', monospace; font-size: 14px; font-weight: 800; color: #00ff88; text-shadow: 0 0 12px rgba(0,255,136,0.8); position: relative; z-index: 2; }
+
+.icon-proj-b {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: linear-gradient(145deg, #7a4520 0%, #4a2510 60%, #2a1008 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 2px 0 rgba(255,170,80,0.4), inset 0 -3px 5px rgba(0,0,0,0.6), 0 6px 18px rgba(0,0,0,0.55);
+}
+.icon-proj-b::after { content: '🎞️'; font-size: 26px; position: relative; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+
+.icon-about-b {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: radial-gradient(ellipse at 30% 25%, #88c4ff 0%, #3a85f0 40%, #1548c8 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 3px 0 rgba(255,255,255,0.65), inset 0 -3px 5px rgba(0,0,0,0.4), 0 6px 20px rgba(20,80,200,0.4), 0 2px 6px rgba(0,0,0,0.3);
+}
+.icon-about-b::before { content: ''; position: absolute; top: 4px; left: 6px; width: 18px; height: 10px; background: rgba(255,255,255,0.55); border-radius: 50%; filter: blur(2px); }
+.icon-about-b::after { content: '👤'; font-size: 24px; position: relative; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
+
+.icon-contact-b {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: linear-gradient(145deg, #5ae078 0%, #26a845 60%, #0f6a28 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.5), inset 0 -3px 5px rgba(0,0,0,0.3), 0 6px 18px rgba(0,0,0,0.4);
+}
+.icon-contact-b::after { content: '✉️'; font-size: 26px; position: relative; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+
+/* ── STYLE C: Abstract material texture ── */
+.icon-notes-c {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: linear-gradient(160deg, #f5dfa0 0%, #c8a050 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.5), 0 5px 12px rgba(0,0,0,0.4);
+}
+/* lined paper texture */
+.icon-notes-c::before { content: ''; position: absolute; inset: 8px; background: rgba(255,255,255,0.85); border-radius: 4px; }
+.icon-notes-c-inner { position: relative; z-index: 2; font-size: 10px; color: #8B7030; font-weight: 700; letter-spacing: -0.5px; line-height: 1; text-align: center; }
+
+.icon-term-c {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: #141418;
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  border: 1px solid #2a2a30;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.1), 0 5px 12px rgba(0,0,0,0.5);
+}
+.icon-term-c-inner { font-family: 'SF Mono', 'Menlo', monospace; font-size: 11px; color: #00ff88; z-index: 2; position: relative; text-shadow: 0 0 6px rgba(0,255,136,0.7); line-height: 1.3; }
+
+.icon-proj-c {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: conic-gradient(#1a1208 0deg, #2a1c0e 90deg, #1a1208 180deg, #221508 270deg, #1a1208 360deg);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 1.5px 0 rgba(255,200,100,0.3), 0 5px 12px rgba(0,0,0,0.5);
+}
+.icon-proj-c::after { content: '▶'; font-size: 20px; color: #ffaa44; position: relative; z-index: 2; text-shadow: 0 0 8px rgba(255,150,50,0.6); }
+
+.icon-about-c {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: linear-gradient(160deg, #5090e0 0%, #1a50c0 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.4), 0 5px 12px rgba(0,0,0,0.4);
+}
+.icon-about-c::after { content: 'M'; font-size: 24px; color: rgba(255,255,255,0.9); font-weight: 800; position: relative; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+
+.icon-contact-c {
+  width: 52px; height: 52px; border-radius: 22.37%;
+  background: linear-gradient(160deg, #3dba5e 0%, #1d7838 100%);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.4), 0 5px 12px rgba(0,0,0,0.4);
+}
+/* envelope shape */
+.icon-contact-c::before { content: ''; position: absolute; width: 30px; height: 22px; background: rgba(255,255,255,0.9); border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); z-index: 1; }
+.icon-contact-c::after { content: ''; position: absolute; width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 11px solid rgba(220,255,220,0.6); z-index: 2; top: calc(50% - 11px); }
+
+.tag { display: inline-block; padding: 2px 7px; border-radius: 20px; font-size: 10px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+.tag-rec { background: #0a2a18; color: #30d158; }
+
+.note { font-size: 12px; color: #555; text-align: center; margin-top: 8px; }
+</style>
+<script>
+function select(el, group) {
+  document.querySelectorAll('[data-group="' + group + '"]').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const choice = el.dataset.choice;
+  const label = el.querySelector('h3').textContent;
+  if (window.recordEvent) window.recordEvent('click', choice, group + ':' + label);
+}
+</script>
+</head>
+<body>
+
+<h1>Analogue Icon 风格</h1>
+<p class="sub">三种路线的对比 — 6个 app：Notes、Terminal、Projects、About、Contact、Reel</p>
+
+<div class="section-title">选择你最喜欢的 icon 风格</div>
+<div class="cards">
+
+  <!-- A: Physical Material -->
+  <div class="card" data-group="icon-style" data-choice="physical" onclick="select(this,'icon-style')">
+    <div class="card-label">A <span class="tag tag-rec">研究推荐</span></div>
+    <div class="icon-row">
+      <div class="icon-notes-a" title="Notes — cork board texture"></div>
+      <div class="icon-term-a" title="Terminal — brushed dark metal"><div class="icon-term-a-inner">$_</div></div>
+      <div class="icon-proj-a" title="Projects — dark film plastic"></div>
+      <div class="icon-about-a" title="About — polished glass sphere"></div>
+      <div class="icon-contact-a" title="Contact — stamped envelope"></div>
+    </div>
+    <h3>实体材质 (Physical Material)</h3>
+    <p>每个 app 对应一种真实材质：木纹/软木板、磨砂金属、皮革、玻璃球、布料纹路。iOS 7 之前的经典 analogue 语言。</p>
+  </div>
+
+  <!-- B: Rendered 3D -->
+  <div class="card" data-group="icon-style" data-choice="rendered3d" onclick="select(this,'icon-style')">
+    <div class="card-label">B</div>
+    <div class="icon-row">
+      <div class="icon-notes-b"></div>
+      <div class="icon-term-b"><div class="icon-term-b-inner">$_</div></div>
+      <div class="icon-proj-b"></div>
+      <div class="icon-about-b"></div>
+      <div class="icon-contact-b"></div>
+    </div>
+    <h3>立体渲染风格 (3D Rendered)</h3>
+    <p>模拟 Cinema 4D/Blender 渲染效果：强高光、深阴影、饱和渐变。现代感更强，像 Airbnb 2025 icon 重设计风格。</p>
+  </div>
+
+  <!-- C: Abstract / Minimal Texture -->
+  <div class="card" data-group="icon-style" data-choice="abstract" onclick="select(this,'icon-style')">
+    <div class="card-label">C</div>
+    <div class="icon-row">
+      <div class="icon-notes-c"><div class="icon-notes-c-inner">Notes</div></div>
+      <div class="icon-term-c"><div class="icon-term-c-inner">~$<br>&gt;_</div></div>
+      <div class="icon-proj-c"></div>
+      <div class="icon-about-c"></div>
+      <div class="icon-contact-c"></div>
+    </div>
+    <h3>抽象纹理 (Abstract Texture)</h3>
+    <p>用字符/几何形状暗示材质，比较克制，介于 analogue 和 minimal 之间。适合不想太花哨的场合。</p>
+  </div>
+
+</div>
+
+<p class="note">点击选中后在终端告诉我，或者说"A B 都好，帮我组合一下"</p>
+
+</body>
+</html>

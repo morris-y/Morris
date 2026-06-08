@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { safeFetch } from './safe-fetch'
 
 export interface NoteItem {
   slug: string
@@ -63,7 +64,7 @@ export function getLocalFolders(): NoteFolder[] {
 
 export async function getMediumFolders(): Promise<NoteFolder[]> {
   try {
-    const res = await fetch('https://morrisy.medium.com/feed', {
+    const res = await safeFetch('https://morrisy.medium.com/feed', {
       next: { revalidate: 3600 },
     })
     if (!res.ok) return []

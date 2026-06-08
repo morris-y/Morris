@@ -48,6 +48,21 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ── Desktop chrome dimensions (becomes h-os-menubar, h-os-titlebar … utilities) ── */
+  --height-os-menubar:  var(--menubar-h);
+  --height-os-titlebar: var(--titlebar-h);
+
+  /* ── Desktop shell z-index scale (becomes z-dock, z-menubar … utilities) ── */
+  --z-dock: 998;
+  --z-menu-backdrop: 998;
+  --z-menubar: 999;
+  --z-menu-dropdown: 1000;
+  --z-ctx-backdrop: 7000;
+  --z-ctx-menu: 7001;
+  --z-spotlight-backdrop: 8000;
+  --z-spotlight: 8001;
+  --z-boot: 9999;
 }
 
 :root {
@@ -59,6 +74,49 @@
   /* Apple system UI font — resolves to real SF Pro on macOS, graceful fallback elsewhere */
   --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
     "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+
+  /* ── Glass blur scale ──────────────────────────────────────────────────── */
+  /* Increasing blur = more depth. Window content gets the lightest treatment  */
+  /* so text stays readable; titlebar + dock push hardest to refract wallpaper */
+  --blur-window:              28px;   /* window body: subtle frost             */
+  --blur-glass:               60px;   /* base glass / menubar                  */
+  --blur-dock:                64px;   /* dock capsule                          */
+  --blur-panel:               72px;   /* spotlight, dropdowns, context menus   */
+  --blur-titlebar:            80px;   /* focused titlebar — max refraction     */
+  --blur-titlebar-unfocused:  48px;   /* unfocused titlebar — pulled back      */
+
+  /* ── Glass saturation pump ─────────────────────────────────────────────── */
+  /* Higher = wallpaper colours bleed through more vividly                    */
+  --glass-sat-muted:  140%;   /* unfocused titlebar                           */
+  --glass-sat-window: 160%;   /* window body                                  */
+  --glass-sat-mid:    220%;   /* base glass / panels                          */
+  --glass-sat-high:   260%;   /* menubar, dock, focused titlebar              */
+
+  /* ── Glass brightness nudge ─────────────────────────────────────────────  */
+  --glass-bright-base:     1.04;
+  --glass-bright-dock:     1.08;
+  --glass-bright-titlebar: 1.14;
+
+  /* ── Desktop chrome dimensions ─────────────────────────────────────────── */
+  /* Single source of truth — components should use Tailwind h-7 / pt-7 etc., */
+  /* but these anchor the numeric intent for any CSS-side usage.               */
+  --menubar-h:       28px;
+  --titlebar-h:      28px;
+  --dock-icon-base:  48px;   /* matches BASE const in dock.tsx                */
+  --dock-icon-max:   74px;   /* BASE × 1.55                                   */
+  --dock-radius:     26px;
+  --window-radius:   12px;
+  --squircle-radius: 22.37%; /* macOS superellipse approximation              */
+
+  /* ── Wallpaper accent palette ──────────────────────────────────────────── */
+  /* Raw hue channels used by the wallpaper — handy for matching tints in     */
+  /* glass overlays without re-typing the same magic RGB triplets everywhere. */
+  --wp-violet:  140 80 255;
+  --wp-magenta: 255 55 185;
+  --wp-blue:     48 140 255;
+  --wp-teal:     24 220 200;
+
+  /* shadcn / Radix semantic tokens */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -282,9 +340,9 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   macOS Tahoe "Liquid Glass" system — shared material language for the desktop
-   shell. Components apply these utility classes so glass/icon/shadow treatment
-   stays coherent across menubar, dock, windows, spotlight, and menus.
+   macOS Tahoe "Liquid Glass" system
+   All blur, saturation, and brightness values draw from the token scale above.
+   To tune the whole glass system: edit :root tokens, not individual classes.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Apple system UI font, scoped to the desktop shell root */
@@ -297,8 +355,8 @@
 /* ── Base glass surface ──────────────────────────────────────────────────── */
 .glass {
   background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(60px) saturate(220%) brightness(1.05);
-  -webkit-backdrop-filter: blur(60px) saturate(220%) brightness(1.05);
+  backdrop-filter: blur(var(--blur-glass)) saturate(var(--glass-sat-mid)) brightness(1.05);
+  -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(var(--glass-sat-mid)) brightness(1.05);
   border: 1px solid rgba(255, 255, 255, 0.20);
   box-shadow:
     inset 0 1.5px 0 rgba(255, 255, 255, 0.50),
@@ -310,8 +368,8 @@
 /* Menubar — near-invisible veil; wallpaper hues bleed through almost fully */
 .glass-menubar {
   background: rgba(6, 4, 14, 0.28);
-  backdrop-filter: blur(60px) saturate(260%) brightness(1.04);
-  -webkit-backdrop-filter: blur(60px) saturate(260%) brightness(1.04);
+  backdrop-filter: blur(var(--blur-glass)) saturate(var(--glass-sat-high)) brightness(var(--glass-bright-base));
+  -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(var(--glass-sat-high)) brightness(var(--glass-bright-base));
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.07),
     0 1px 0 rgba(0, 0, 0, 0.20);
@@ -320,32 +378,28 @@
 /* Dock — premium liquid glass capsule; vivid colours from wallpaper visible */
 .glass-dock {
   background:
-    /* static colour veil picks up the hot-pink/violet bottom wallpaper zone */
     linear-gradient(
       90deg,
-      rgba(120, 60, 255, 0.12) 0%,
-      rgba(255, 50, 180, 0.10) 50%,
-      rgba(50, 120, 255, 0.10) 100%
+      rgba(var(--wp-violet) / 0.12) 0%,
+      rgba(var(--wp-magenta) / 0.10) 50%,
+      rgba(var(--wp-blue) / 0.10) 100%
     ),
     rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(64px) saturate(260%) brightness(1.08);
-  -webkit-backdrop-filter: blur(64px) saturate(260%) brightness(1.08);
+  backdrop-filter: blur(var(--blur-dock)) saturate(var(--glass-sat-high)) brightness(var(--glass-bright-dock));
+  -webkit-backdrop-filter: blur(var(--blur-dock)) saturate(var(--glass-sat-high)) brightness(var(--glass-bright-dock));
   border: 1px solid rgba(255, 255, 255, 0.22);
   box-shadow:
-    /* bright top specular — signature "thick glass" mirror edge */
     inset 0 1.5px 0 rgba(255, 255, 255, 0.62),
-    /* dark bottom rim */
     inset 0 -1px 0 rgba(0, 0, 0, 0.35),
-    /* deep float shadow */
     0 24px 56px rgba(0, 0, 0, 0.52),
     0 4px 12px rgba(0, 0, 0, 0.32);
 }
 
 /* Translucent popover/panel glass — spotlight, context menus, dropdowns */
 .glass-panel {
-  background: rgba(14, 10, 26, 0.46);
-  backdrop-filter: blur(72px) saturate(220%) brightness(1.04);
-  -webkit-backdrop-filter: blur(72px) saturate(220%) brightness(1.04);
+  background: rgba(14, 10, 26, 0.82);
+  backdrop-filter: blur(var(--blur-panel)) saturate(var(--glass-sat-mid)) brightness(var(--glass-bright-base));
+  -webkit-backdrop-filter: blur(var(--blur-panel)) saturate(var(--glass-sat-mid)) brightness(var(--glass-bright-base));
   border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
@@ -353,19 +407,18 @@
     0 10px 32px rgba(0, 0, 0, 0.48);
 }
 
-/* Window titlebar — wallpaper bleed-through + static gradient fallback for non-GPU contexts */
+/* Window titlebar — wallpaper bleed-through + static gradient fallback */
 .glass-titlebar {
   background:
-    /* Prismatic colour veil — always visible, even without GPU blur */
     linear-gradient(
       105deg,
-      rgba(120, 70, 255, 0.18) 0%,
+      rgba(var(--wp-violet) / 0.18) 0%,
       rgba(200, 60, 200, 0.10) 45%,
-      rgba(40, 130, 255, 0.14) 100%
+      rgba(var(--wp-blue) / 0.14) 100%
     ),
     rgba(10, 6, 20, 0.40);
-  backdrop-filter: blur(80px) saturate(260%) brightness(1.14);
-  -webkit-backdrop-filter: blur(80px) saturate(260%) brightness(1.14);
+  backdrop-filter: blur(var(--blur-titlebar)) saturate(var(--glass-sat-high)) brightness(var(--glass-bright-titlebar));
+  -webkit-backdrop-filter: blur(var(--blur-titlebar)) saturate(var(--glass-sat-high)) brightness(var(--glass-bright-titlebar));
   box-shadow: inset 0 -0.5px 0 rgba(0, 0, 0, 0.28);
 }
 .glass-titlebar-unfocused {
@@ -376,19 +429,16 @@
       rgba(40, 30, 80, 0.06) 100%
     ),
     rgba(10, 8, 20, 0.58);
-  backdrop-filter: blur(48px) saturate(140%) brightness(1.01);
-  -webkit-backdrop-filter: blur(48px) saturate(140%) brightness(1.01);
+  backdrop-filter: blur(var(--blur-titlebar-unfocused)) saturate(var(--glass-sat-muted)) brightness(1.01);
+  -webkit-backdrop-filter: blur(var(--blur-titlebar-unfocused)) saturate(var(--glass-sat-muted)) brightness(1.01);
   box-shadow: inset 0 -0.5px 0 rgba(0, 0, 0, 0.22);
 }
 
 /* ── Window float shadows (focus-aware) ─────────────────────────────────── */
 .window-shadow-focused {
   box-shadow:
-    /* top specular on the whole window frame */
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    /* outer ring just brighter than the wallpaper */
     0 0 0 0.5px rgba(255, 255, 255, 0.14),
-    /* deep float shadow */
     0 32px 80px rgba(0, 0, 0, 0.65),
     0 10px 28px rgba(0, 0, 0, 0.48);
 }
@@ -402,22 +452,20 @@
 /* ── Window frame glass — subtle frosted dark panel ────────────────────── */
 .glass-window {
   background: rgba(28, 28, 36, 0.78);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  backdrop-filter: blur(var(--blur-window)) saturate(var(--glass-sat-window));
+  -webkit-backdrop-filter: blur(var(--blur-window)) saturate(var(--glass-sat-window));
 }
 
 /* ── App icon squircle (Dock / Spotlight / desktop) ─────────────────────── */
-/* Superellipse-ish corner; gradient fill is set inline per-app. */
 .app-icon-squircle {
   position: relative;
-  border-radius: 22.37%;
+  border-radius: var(--squircle-radius);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
     inset 0 -2px 3px rgba(0, 0, 0, 0.22),
     0 4px 10px rgba(0, 0, 0, 0.35);
   overflow: hidden;
 }
-/* Top specular sheen */
 .app-icon-squircle::before {
   content: "";
   position: absolute;
@@ -427,24 +475,17 @@
 }
 
 /* ── Tahoe fluid-gradient wallpaper ─────────────────────────────────────── */
-/* Richer, more saturated source colours — glass surfaces refract these vividly */
 .wallpaper-tahoe {
   background:
-    /* vivid violet upper-left corona */
-    radial-gradient(65% 60% at 15% 10%, rgba(140, 80, 255, 0.72), transparent 60%),
-    /* magenta/hot-pink lower-right */
-    radial-gradient(60% 58% at 88% 90%, rgba(255, 55, 185, 0.62), transparent 62%),
-    /* electric blue upper-right */
-    radial-gradient(55% 50% at 90% 14%, rgba(48, 140, 255, 0.56), transparent 60%),
-    /* cyan/teal lower-left accent */
-    radial-gradient(50% 50% at 6% 88%, rgba(24, 220, 200, 0.40), transparent 62%),
-    /* warm amber center glow — lifts midtones so glass isn't too dark */
+    radial-gradient(65% 60% at 15% 10%, rgba(var(--wp-violet) / 0.72), transparent 60%),
+    radial-gradient(60% 58% at 88% 90%, rgba(var(--wp-magenta) / 0.62), transparent 62%),
+    radial-gradient(55% 50% at 90% 14%, rgba(var(--wp-blue) / 0.56), transparent 60%),
+    radial-gradient(50% 50% at 6% 88%, rgba(var(--wp-teal) / 0.40), transparent 62%),
     radial-gradient(40% 40% at 50% 52%, rgba(200, 120, 255, 0.14), transparent 65%),
-    /* base: deep indigo → near-black */
     radial-gradient(130% 120% at 22% 6%, #1e1460 0%, #0e0a2e 44%, #070511 100%);
 }
 
-/* Slow drifting blooms for the wallpaper (subtle, ~atmospheric) */
+/* Slow drifting blooms for the wallpaper */
 @keyframes bloom-drift-1 {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   50% { transform: translate3d(4%, 3%, 0) scale(1.08); }
@@ -456,7 +497,7 @@
 .bloom-1 { animation: bloom-drift-1 32s ease-in-out infinite; }
 .bloom-2 { animation: bloom-drift-2 40s ease-in-out infinite; }
 
-/* sahor.work-inspired display typography utilities */
+/* Display typography utilities */
 @layer utilities {
   .font-display {
     font-family: var(--font-display);

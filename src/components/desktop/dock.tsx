@@ -19,6 +19,8 @@ import type { AnalogueIconConfig } from '@/types/window'
 // and neighbors get pushed outward — that lateral spread is the smooth wave.
 const BASE = 48
 const MAX = BASE * 1.55
+// Fixed pill height = BASE icon + dot row (mt-1 + h-[3px] = 7px) + py-2 × 2 (16px)
+const DOCK_HEIGHT = BASE + 7 + 16
 
 type Tile = {
   gradientCss: string
@@ -173,11 +175,21 @@ export function Dock() {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-3 z-dock flex justify-center">
+      {/*
+       * Two-layer dock: glass pill (absolute, fixed height) sits behind icons.
+       * Icons live in a transparent flex row that grows upward when magnified —
+       * decoupled from backdrop-filter so Chrome never clips the overflow.
+       */}
       <div
-        className="glass-dock pointer-events-auto flex items-end gap-[10px] rounded-[26px] px-3 py-2"
+        className="pointer-events-auto relative flex items-end gap-[10px] px-3 py-2"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
+        {/* Glass background — purely visual, never captures events, stays fixed height */}
+        <div
+          className="glass-dock pointer-events-none absolute inset-x-0 bottom-0 rounded-[26px]"
+          style={{ height: DOCK_HEIGHT }}
+        />
         {/* Finder — pinned far-left */}
         <DockTile
           tile={{

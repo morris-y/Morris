@@ -1,0 +1,9 @@
+{"type":"server-started","port":64589,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:64589","screen_dir":"/Users/morrisy/Projects/Morris/.superpowers/brainstorm/84595-1780897721/content","state_dir":"/Users/morrisy/Projects/Morris/.superpowers/brainstorm/84595-1780897721/state"}
+{"type":"screen-added","file":"/Users/morrisy/Projects/Morris/.superpowers/brainstorm/84595-1780897721/content/icon-style.html"}
+{"source":"user-event","type":"click","text":"C\n    \n      \n        \n        \n        \n      \n      \n        液态玻璃效果\n      \n    \n    液态玻璃（强）\n    macOS Tahoe 液态玻璃风格，非常透明，壁纸大量透出","choice":"liquid","id":null,"timestamp":1780897906226}
+{"source":"user-event","type":"click","text":"B 推荐\n    \n      \n        \n        \n        \n      \n      \n        半透明模糊背景\n      \n    \n    微妙玻璃效果\n    窗口框稍透明，能隐约看到壁纸颜色，macOS 原生感","choice":"subtle","id":null,"timestamp":1780897924459}
+{"source":"user-event","type":"click","text":"C\n    \n      \n        \n        \n        \n      \n      \n        液态玻璃效果\n      \n    \n    液态玻璃（强）\n    macOS Tahoe 液态玻璃风格，非常透明，壁纸大量透出","choice":"liquid","id":null,"timestamp":1780897927959}
+{"source":"user-event","type":"click","text":"B 推荐\n    \n      \n        \n        \n        \n      \n      \n        半透明模糊背景\n      \n    \n    微妙玻璃效果\n    窗口框稍透明，能隐约看到壁纸颜色，macOS 原生感","choice":"subtle","id":null,"timestamp":1780897932126}
+{"type":"screen-added","file":"/Users/morrisy/Projects/Morris/.superpowers/brainstorm/84595-1780897721/content/analogue-icons.html"}
+{"type":"screen-added","file":"/Users/morrisy/Projects/Morris/.superpowers/brainstorm/84595-1780897721/content/icon-combined.html"}
+{"type":"server-stopped","reason":"idle timeout"}
