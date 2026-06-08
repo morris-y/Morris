@@ -12,7 +12,7 @@ export function AppIcon({
   radius,
   className = '',
 }: {
-  app: Pick<AppDefinition, 'gradientCss' | 'Glyph' | 'name' | 'iconConfig'>
+  app: Pick<AppDefinition, 'gradientCss' | 'Glyph' | 'iconConfig'>
   size?: number
   radius?: number
   className?: string
