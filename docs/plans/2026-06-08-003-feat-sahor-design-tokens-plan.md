@@ -1,7 +1,7 @@
 ---
 title: "feat: Apply sahor.work Visual Style and Design Tokens"
 date: 2026-06-08
-status: active
+status: completed
 origin: docs/brainstorms/2026-06-07-portfolio-mode-switcher-requirements.md
 ---
 
