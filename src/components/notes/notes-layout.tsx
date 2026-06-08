@@ -9,7 +9,7 @@ import type { NoteFolder, NoteItem } from '@/lib/notes'
 
 type MobileView = 'folders' | 'noteList' | 'noteContent'
 
-export function NotesLayout({ folders }: { folders: NoteFolder[] }) {
+export function NotesLayout({ folders, isWindowed = false }: { folders: NoteFolder[]; isWindowed?: boolean }) {
   const [activeFolder, setActiveFolder] = useState<NoteFolder | null>(folders[0] ?? null)
   const [activeNote, setActiveNote] = useState<NoteItem | null>(folders[0]?.notes[0] ?? null)
   const [mobileView, setMobileView] = useState<MobileView>('folders')
@@ -26,7 +26,7 @@ export function NotesLayout({ folders }: { folders: NoteFolder[] }) {
   }
 
   return (
-    <div className="flex h-screen bg-[#1e1e1e] overflow-hidden">
+    <div className={`flex ${isWindowed ? 'h-full' : 'h-screen'} bg-[#1e1e1e] overflow-hidden`}>
       {/* Folder list — always visible on desktop, conditionally on mobile */}
       <aside
         className={[
@@ -36,10 +36,12 @@ export function NotesLayout({ folders }: { folders: NoteFolder[] }) {
         ].join(' ')}
       >
         <div className="px-4 pt-12 pb-3">
-          <Link href="/" className="flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors text-xs mb-6">
-            <ArrowLeft className="h-3 w-3" />
-            home
-          </Link>
+          {!isWindowed && (
+            <Link href="/" className="flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors text-xs mb-6">
+              <ArrowLeft className="h-3 w-3" />
+              home
+            </Link>
+          )}
           <p className="text-white/30 text-[10px] uppercase tracking-widest">Notes</p>
         </div>
         <nav className="flex-1 px-2">
@@ -100,7 +102,7 @@ export function NotesLayout({ folders }: { folders: NoteFolder[] }) {
             >
               <p
                 className={[
-                  'text-sm font-medium leading-tight line-clamp-1',
+                  'text-sm font-display font-medium leading-tight line-clamp-1 tracking-display',
                   activeNote?.slug === note.slug ? 'text-[#d4a036]' : 'text-white/80',
                 ].join(' ')}
               >
