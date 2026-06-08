@@ -268,7 +268,6 @@ export function WindowFrame({
         zIndex,
         transformOrigin: 'bottom center',
         pointerEvents: isMinimized ? 'none' : 'auto',
-        borderColor: isFocused ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.10)',
       }}
       className={cn(
         'flex flex-col rounded-[14px] overflow-hidden glass-window transition-[box-shadow,border-color] duration-200',
