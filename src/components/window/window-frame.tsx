@@ -45,14 +45,14 @@ export interface WindowFrameProps {
   size: WindowSize
   isMinimized: boolean
   isFocused: boolean
-  isFullscreen: boolean
+  isFullscreen?: boolean
   zIndex: number
   minSize?: WindowSize
   children: React.ReactNode
   onClose: () => void
   onMinimize: () => void
   onMaximize: () => void
-  onFullscreen: () => void
+  onFullscreen?: () => void
   onFocus: () => void
 }
 
@@ -264,21 +264,36 @@ export function WindowFrame({
 
   // ── Render ────────────────────────────────────────────────────────────────
 
+  const showTitlebar = !isFullscreen || chromeRevealed
+
   return (
     <motion.div
-      style={{
-        position: 'absolute',
-        left: position.x,
-        top: position.y,
-        width: size.width,
-        height: size.height,
-        zIndex,
-        transformOrigin: 'bottom center',
-        pointerEvents: isMinimized ? 'none' : 'auto',
-      }}
+      style={
+        isFullscreen
+          ? {
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              zIndex,
+              transformOrigin: 'center',
+              pointerEvents: 'auto',
+            }
+          : {
+              position: 'absolute',
+              left: position.x,
+              top: position.y,
+              width: size.width,
+              height: size.height,
+              zIndex,
+              transformOrigin: 'bottom center',
+              pointerEvents: isMinimized ? 'none' : 'auto',
+            }
+      }
       className={cn(
-        'flex flex-col rounded-[14px] overflow-hidden glass-window transition-[box-shadow] duration-200',
-        isFocused ? 'window-shadow-focused' : 'window-shadow-unfocused'
+        'flex flex-col overflow-hidden glass-window transition-[box-shadow] duration-200',
+        isFullscreen ? 'rounded-none' : 'rounded-[14px]',
+        isFullscreen ? '' : isFocused ? 'window-shadow-focused' : 'window-shadow-unfocused'
       )}
       initial={{ scale: 0.96, opacity: 0, y: 10 }}
       animate={
@@ -290,15 +305,37 @@ export function WindowFrame({
       transition={{ type: 'spring', stiffness: 460, damping: 34, mass: 0.7 }}
       onPointerDownCapture={handleFocusCapture}
     >
-      {/* Title bar — drag handle */}
-      <WindowTitlebar
-        title={title}
-        isFocused={isFocused}
-        onClose={onClose}
-        onMinimize={onMinimize}
-        onMaximize={onMaximize}
-        onPointerDown={handleDragStart}
-      />
+      {/* Fullscreen: a thin top hover-zone reveals the auto-hidden titlebar */}
+      {isFullscreen && !chromeRevealed && (
+        <div
+          className="absolute top-0 inset-x-0 h-2.5 z-50"
+          onMouseEnter={() => setChromeRevealed(true)}
+        />
+      )}
+
+      {/* Title bar — drag handle (auto-hides in fullscreen) */}
+      <motion.div
+        className="shrink-0 overflow-hidden"
+        animate={{ height: showTitlebar ? 38 : 0 }}
+        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+        onMouseLeave={() => {
+          if (isFullscreen) setChromeRevealed(false)
+        }}
+        style={
+          isFullscreen ? { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 49 } : undefined
+        }
+      >
+        <WindowTitlebar
+          title={title}
+          isFocused={isFocused}
+          isFullscreen={isFullscreen}
+          onClose={onClose}
+          onMinimize={onMinimize}
+          onMaximize={onMaximize}
+          onFullscreen={onFullscreen}
+          onPointerDown={isFullscreen ? () => {} : handleDragStart}
+        />
+      </motion.div>
 
       {/* App content — selectable, isolated per-window Suspense boundary so a
           newly-opened lazy app suspends only ITS window (never remounting
@@ -307,14 +344,15 @@ export function WindowFrame({
         <Suspense fallback={<WindowLoading />}>{children}</Suspense>
       </div>
 
-      {/* Resize handles */}
-      {RESIZE_HANDLES.map(({ dir, className, cursor }) => (
-        <div
-          key={dir}
-          className={`${className} ${cursor} z-40`}
-          onPointerDown={(e) => handleResizeStart(e, dir)}
-        />
-      ))}
+      {/* Resize handles — not in fullscreen */}
+      {!isFullscreen &&
+        RESIZE_HANDLES.map(({ dir, className, cursor }) => (
+          <div
+            key={dir}
+            className={`${className} ${cursor} z-40`}
+            onPointerDown={(e) => handleResizeStart(e, dir)}
+          />
+        ))}
     </motion.div>
   )
 }
