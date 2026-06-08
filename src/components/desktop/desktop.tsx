@@ -42,6 +42,7 @@ export function Desktop() {
   })
   const [spotlightOpen, setSpotlightOpen] = useState(false)
   const [selectedIcon, setSelectedIcon] = useState<AppId | null>(null)
+  const [launchingIcon, setLaunchingIcon] = useState<AppId | null>(null)
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
 
   // Focus is the topmost NON-minimized window. Minimizing therefore hands focus
@@ -56,6 +57,19 @@ export function Desktop() {
       launchAppStore(appId, appDef.windowConstraints, appDef.name)
     },
     [launchAppStore]
+  )
+
+  const handleIconLaunch = useCallback(
+    (appId: AppId) => {
+      if (launchingIcon) return
+      setLaunchingIcon(appId)
+      setSelectedIcon(appId)
+      setTimeout(() => {
+        launchApp(appId)
+        setLaunchingIcon(null)
+      }, 220)
+    },
+    [launchApp, launchingIcon]
   )
 
   const handleBootComplete = useCallback(() => {
@@ -154,20 +168,33 @@ export function Desktop() {
             const appDef = getAppById(appId)
             if (!appDef) return null
             const selected = selectedIcon === appId
+            const launching = launchingIcon === appId
             return (
-              <button
+              <motion.button
                 key={appId}
-                onDoubleClick={() => launchApp(appId)}
+                onDoubleClick={(e) => {
+                  e.stopPropagation()
+                  handleIconLaunch(appId)
+                }}
                 onClick={(e) => {
                   e.stopPropagation()
                   setSelectedIcon(appId)
                   setContextMenu(null)
                 }}
-                className="flex flex-col items-center gap-1.5 w-[76px] group cursor-default outline-none"
+                animate={launching
+                  ? { scale: 1.28, opacity: 0, y: -8 }
+                  : { scale: 1, opacity: 1, y: 0 }
+                }
+                transition={launching
+                  ? { duration: 0.2, ease: [0.3, 0, 0.5, 1] }
+                  : { type: 'spring', stiffness: 500, damping: 32, mass: 0.8 }
+                }
+                whileTap={{ scale: 0.88 }}
+                className="flex flex-col items-center gap-1.5 w-[76px] cursor-default outline-none"
               >
                 <div
-                  className={`rounded-[15px] transition-transform duration-150 group-active:scale-95 ${
-                    selected ? 'ring-2 ring-white/70 ring-offset-0' : ''
+                  className={`rounded-[17px] p-1 transition-all duration-100 ${
+                    selected ? 'bg-[#0a84ff]/25 ring-1 ring-[#0a84ff]/40' : ''
                   }`}
                 >
                   <AppIcon app={appDef} size={52} />
@@ -181,7 +208,7 @@ export function Desktop() {
                 >
                   {appDef.name}
                 </span>
-              </button>
+              </motion.button>
             )
           })}
         </div>
