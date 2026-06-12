@@ -200,8 +200,8 @@ export function Dock() {
           }}
           mouseX={mouseX}
           onClick={() => {
-            const about = getAppById('about')
-            if (about) launchApp(about.id, about.windowConstraints, about.name)
+            const finder = getAppById('finder')
+            if (finder) launchApp(finder.id, finder.windowConstraints, finder.name)
           }}
         />
 

@@ -36,6 +36,7 @@ const HELP_TEXT = [
   { text: '  projects    — list projects with outcomes', color: DEFAULT_TEXT },
   { text: '  contact     — show social links', color: DEFAULT_TEXT },
   { text: '  skills      — show tech skills', color: DEFAULT_TEXT },
+  { text: '  ryo <ask>   — ask the local AI co-pilot', color: DEFAULT_TEXT },
   { text: '  clear       — clear terminal', color: DEFAULT_TEXT },
   { text: '  matrix      — ???', color: MUTED },
 ]
@@ -99,6 +100,37 @@ function buildMatrixFrame(cols: number, rows: number): string {
     lines.push(line)
   }
   return lines.join('\n')
+}
+
+function buildRyoResponse(prompt: string): string[] {
+  const trimmed = prompt.trim()
+  if (!trimmed) {
+    return [
+      'ryo: give me a prompt after the command.',
+      'try: ryo summarize the built-in apps',
+    ]
+  }
+  const lower = trimmed.toLowerCase()
+  if (lower.includes('app') || lower.includes('built')) {
+    return [
+      'ryo: built-in app status looks like a constellation, not a list.',
+      '  - Start with the app that proves the OS metaphor: Finder.',
+      '  - Keep media apps playful but permission-safe.',
+      '  - Anything AI-facing should degrade to a local simulation without keys.',
+    ]
+  }
+  if (lower.includes('ship') || lower.includes('plan')) {
+    return [
+      'ryo: ship order:',
+      '  1. make the first interaction real',
+      '  2. persist the smallest useful state',
+      '  3. verify the shell still opens every app',
+    ]
+  }
+  return [
+    `ryo: ${trimmed}`,
+    'I would turn that into a tiny runnable artifact first, then let taste catch up with ambition.',
+  ]
 }
 
 // ---------------------------------------------------------------------------
@@ -362,6 +394,13 @@ export function TerminalApp({ isFocused }: AppWindowProps) {
 
       if (cmd === 'skills') {
         SKILLS_LINES.forEach((l) => appendLine({ kind: 'output', text: l.text, color: l.color }))
+        appendLine({ kind: 'blank', text: '' })
+        return
+      }
+
+      if (cmd.startsWith('ryo')) {
+        const prompt = raw.trim().slice(3)
+        buildRyoResponse(prompt).forEach((text) => appendLine({ kind: 'output', text, color: ACCENT }))
         appendLine({ kind: 'blank', text: '' })
         return
       }

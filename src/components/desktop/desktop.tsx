@@ -15,7 +15,7 @@ import { MissionControl } from './mission-control'
 import type { AppId } from '@/types/window'
 
 // Desktop shortcut apps (top-left grid)
-const DESKTOP_SHORTCUTS: AppId[] = ['notes', 'terminal', 'projects']
+const DESKTOP_SHORTCUTS: AppId[] = ['finder', 'textedit', 'terminal', 'projects']
 const SIGNAL_SEQUENCE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
 
 interface ContextMenuState {
@@ -586,9 +586,10 @@ function DesktopContextMenu({
         className="font-system glass-panel fixed z-ctx-menu w-[220px] rounded-xl p-1.5"
         onClick={(e) => e.stopPropagation()}
       >
+        <button className={item} onClick={() => { onLaunch('finder'); onClose() }}>Open Finder</button>
         <button className={item} onClick={() => { onLaunch('about'); onClose() }}>About Morris</button>
         <button className={item} onClick={() => { onLaunch('terminal'); onClose() }}>Open Terminal</button>
-        <button className={item} onClick={() => { onLaunch('notes'); onClose() }}>Open Notes</button>
+        <button className={item} onClick={() => { onLaunch('textedit'); onClose() }}>Open TextEdit</button>
         <div className={divider} />
         <button className={item} onClick={() => { onLaunch('reel'); onClose() }}>the algorithm sent me</button>
         {hasWindows && (

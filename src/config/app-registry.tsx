@@ -2,16 +2,95 @@
 
 import React from 'react'
 import {
+  AudioWaveform,
+  Bot,
+  Camera,
+  Clapperboard,
+  Cpu,
+  FileText,
+  Folder,
+  Gamepad2,
+  Globe2,
+  HardDrive,
   NotebookPen,
   Film,
   MonitorPlay,
+  Music,
+  Paintbrush,
+  Settings,
   SquareTerminal,
+  Store,
+  StickyNote,
   Fingerprint,
   AtSign,
   Smartphone,
 } from 'lucide-react'
 import type { AppDefinition, AppWindowProps } from '@/types/window'
 import type { AppId } from '@/types/window'
+
+const FinderApp = React.lazy(() =>
+  import('@/components/apps/finder-app').then((m) => ({ default: m.FinderApp }))
+)
+
+const TextEditApp = React.lazy(() =>
+  import('@/components/apps/textedit-app').then((m) => ({ default: m.TextEditApp }))
+)
+
+const MacPaintApp = React.lazy(() =>
+  import('@/components/apps/macpaint-app').then((m) => ({ default: m.MacPaintApp }))
+)
+
+const VideosApp = React.lazy(() =>
+  import('@/components/apps/videos-app').then((m) => ({ default: m.VideosApp }))
+)
+
+const SoundboardApp = React.lazy(() =>
+  import('@/components/apps/soundboard-app').then((m) => ({ default: m.SoundboardApp }))
+)
+
+const SynthApp = React.lazy(() =>
+  import('@/components/apps/synth-app').then((m) => ({ default: m.SynthApp }))
+)
+
+const PhotoBoothApp = React.lazy(() =>
+  import('@/components/apps/photo-booth-app').then((m) => ({ default: m.PhotoBoothApp }))
+)
+
+const InternetExplorerApp = React.lazy(() =>
+  import('@/components/apps/internet-explorer-app').then((m) => ({ default: m.InternetExplorerApp }))
+)
+
+const ChatsApp = React.lazy(() =>
+  import('@/components/apps/chats-app').then((m) => ({ default: m.ChatsApp }))
+)
+
+const ControlPanelsApp = React.lazy(() =>
+  import('@/components/apps/control-panels-app').then((m) => ({ default: m.ControlPanelsApp }))
+)
+
+const MinesweeperApp = React.lazy(() =>
+  import('@/components/apps/minesweeper-app').then((m) => ({ default: m.MinesweeperApp }))
+)
+
+const VirtualPcApp = React.lazy(() =>
+  import('@/components/apps/virtual-pc-app').then((m) => ({ default: m.VirtualPcApp }))
+)
+
+const InfiniteMacApp = React.lazy(() =>
+  import('@/components/apps/infinite-mac-app').then((m) => ({ default: m.InfiniteMacApp }))
+)
+
+const IpodApp = React.lazy(() =>
+  import('@/components/apps/ipod-app').then((m) => ({ default: m.IpodApp }))
+)
+
+const AppletStoreApp = React.lazy(() =>
+  import('@/components/apps/applet-store-app').then((m) => ({ default: m.AppletStoreApp }))
+)
+
+const StickiesApp = React.lazy(() =>
+  import('@/components/apps/stickies-app').then((m) => ({ default: m.StickiesApp }))
+)
 
 const NotesApp = React.lazy(() =>
   import('@/components/apps/notes-app').then((m) => ({ default: m.NotesApp }))
@@ -48,6 +127,214 @@ const NetflixApp = React.lazy(() =>
  * Three colour stops: highlight → midtone → deep shadow.
  */
 export const appRegistry: AppDefinition[] = [
+  {
+    id: 'finder',
+    name: 'Finder',
+    icon: '🗂️',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #8ED6FF 0%, #2C83EA 48%, #0B3C9E 100%)',
+    Glyph: Folder,
+    description: 'Files, storage, and smart detection',
+    windowConstraints: {
+      defaultSize: { width: 980, height: 640 },
+      minSize: { width: 620, height: 420 },
+    },
+    component: FinderApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'textedit',
+    name: 'TextEdit',
+    icon: '📄',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #FFFFFF 0%, #C9D5DF 54%, #6D7784 100%)',
+    Glyph: FileText,
+    description: 'Markdown editor and slash commands',
+    windowConstraints: {
+      defaultSize: { width: 900, height: 620 },
+      minSize: { width: 560, height: 420 },
+    },
+    component: TextEditApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'macpaint',
+    name: 'MacPaint',
+    icon: '🎨',
+    gradientCss: 'radial-gradient(ellipse at 36% 26%, #F8F0D8 0%, #CEB887 50%, #534638 100%)',
+    Glyph: Paintbrush,
+    description: 'Bitmap painting studio',
+    windowConstraints: {
+      defaultSize: { width: 980, height: 680 },
+      minSize: { width: 680, height: 460 },
+    },
+    component: MacPaintApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'videos',
+    name: 'Videos',
+    icon: '📼',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #A8A8A8 0%, #3C4048 48%, #090A0D 100%)',
+    Glyph: Clapperboard,
+    description: 'VCR-style YouTube playlists',
+    windowConstraints: {
+      defaultSize: { width: 980, height: 640 },
+      minSize: { width: 640, height: 440 },
+    },
+    component: VideosApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'soundboard',
+    name: 'Soundboard',
+    icon: '🔊',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #FFE27A 0%, #F26822 48%, #72120A 100%)',
+    Glyph: AudioWaveform,
+    description: 'Record, pad, and visualize sounds',
+    windowConstraints: {
+      defaultSize: { width: 900, height: 620 },
+      minSize: { width: 620, height: 420 },
+    },
+    component: SoundboardApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'synth',
+    name: 'Synth',
+    icon: '🎹',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #7CFBE8 0%, #147E76 48%, #062E37 100%)',
+    Glyph: AudioWaveform,
+    description: 'Virtual synth and MIDI lab',
+    windowConstraints: {
+      defaultSize: { width: 980, height: 620 },
+      minSize: { width: 680, height: 440 },
+    },
+    component: SynthApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'photo-booth',
+    name: 'Photo Booth',
+    icon: '📸',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #FF8BAA 0%, #C81D57 48%, #4B0A1E 100%)',
+    Glyph: Camera,
+    description: 'Camera filters and gallery',
+    windowConstraints: {
+      defaultSize: { width: 900, height: 640 },
+      minSize: { width: 620, height: 440 },
+    },
+    component: PhotoBoothApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'internet-explorer',
+    name: 'Internet Explorer',
+    icon: '🌐',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #8CEBFF 0%, #0878D4 48%, #073061 100%)',
+    Glyph: Globe2,
+    description: 'Wayback and generated web eras',
+    windowConstraints: {
+      defaultSize: { width: 1040, height: 680 },
+      minSize: { width: 680, height: 460 },
+    },
+    component: InternetExplorerApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'chats',
+    name: 'Chats',
+    icon: '💬',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #D7FF2F 0%, #3C8C2E 48%, #102712 100%)',
+    Glyph: Bot,
+    description: 'Ryo, rooms, voice, and tools',
+    windowConstraints: {
+      defaultSize: { width: 920, height: 640 },
+      minSize: { width: 620, height: 440 },
+    },
+    component: ChatsApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'control-panels',
+    name: 'Control Panels',
+    icon: '⚙️',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #DCE6F2 0%, #6A7D92 48%, #202832 100%)',
+    Glyph: Settings,
+    description: 'Appearance, sound, backup, files',
+    windowConstraints: {
+      defaultSize: { width: 920, height: 620 },
+      minSize: { width: 620, height: 420 },
+    },
+    component: ControlPanelsApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'minesweeper',
+    name: 'Minesweeper',
+    icon: '💣',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #F7F7F7 0%, #8B929A 48%, #25282E 100%)',
+    Glyph: Gamepad2,
+    description: 'Classic puzzle game',
+    windowConstraints: {
+      defaultSize: { width: 620, height: 620 },
+      minSize: { width: 460, height: 520 },
+    },
+    component: MinesweeperApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'virtual-pc',
+    name: 'Virtual PC',
+    icon: '💾',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #B4C1D9 0%, #3B4A62 48%, #11151D 100%)',
+    Glyph: HardDrive,
+    description: 'DOS games and save states',
+    windowConstraints: {
+      defaultSize: { width: 960, height: 620 },
+      minSize: { width: 680, height: 440 },
+    },
+    component: VirtualPcApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'infinite-mac',
+    name: 'Infinite Mac',
+    icon: '🖥️',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #F2E8C9 0%, #8B806A 48%, #25211B 100%)',
+    Glyph: Cpu,
+    description: 'Classic Mac OS emulators',
+    windowConstraints: {
+      defaultSize: { width: 1080, height: 720 },
+      minSize: { width: 740, height: 500 },
+    },
+    component: InfiniteMacApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'ipod',
+    name: 'iPod',
+    icon: '🎧',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #F5F0E4 0%, #B9B09E 48%, #4A4238 100%)',
+    Glyph: Music,
+    description: '1st-gen player and YouTube import',
+    windowConstraints: {
+      defaultSize: { width: 980, height: 680 },
+      minSize: { width: 720, height: 500 },
+    },
+    component: IpodApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'applet-store',
+    name: 'Applet Store',
+    icon: '🧩',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #FFD66E 0%, #C47B16 48%, #4C2606 100%)',
+    Glyph: Store,
+    description: 'Install and share HTML applets',
+    windowConstraints: {
+      defaultSize: { width: 980, height: 640 },
+      minSize: { width: 680, height: 460 },
+    },
+    component: AppletStoreApp as React.ComponentType<AppWindowProps>,
+  },
+  {
+    id: 'stickies',
+    name: 'Stickies',
+    icon: '🟨',
+    gradientCss: 'radial-gradient(ellipse at 38% 28%, #FFF36D 0%, #D6A51E 48%, #6B4B06 100%)',
+    Glyph: StickyNote,
+    description: 'Quick reminders and pinned notes',
+    windowConstraints: {
+      defaultSize: { width: 760, height: 560 },
+      minSize: { width: 520, height: 380 },
+    },
+    component: StickiesApp as React.ComponentType<AppWindowProps>,
+  },
   {
     id: 'notes',
     name: 'Notes',

@@ -12,7 +12,30 @@ export interface AnalogueIconConfig {
   glowColor?: string
 }
 
-export type AppId = 'notes' | 'projects' | 'netflix' | 'terminal' | 'about' | 'contact' | 'reel'
+export type AppId =
+  | 'finder'
+  | 'textedit'
+  | 'macpaint'
+  | 'videos'
+  | 'soundboard'
+  | 'synth'
+  | 'photo-booth'
+  | 'internet-explorer'
+  | 'chats'
+  | 'control-panels'
+  | 'minesweeper'
+  | 'virtual-pc'
+  | 'infinite-mac'
+  | 'terminal'
+  | 'ipod'
+  | 'applet-store'
+  | 'stickies'
+  | 'notes'
+  | 'projects'
+  | 'netflix'
+  | 'about'
+  | 'contact'
+  | 'reel'
 
 export interface WindowPosition {
   x: number
