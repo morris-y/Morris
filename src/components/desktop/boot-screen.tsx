@@ -12,10 +12,20 @@ export function BootScreen({ onComplete }: { onComplete: () => void }) {
   const logoRef = useRef<HTMLDivElement>(null)
   const textRef = useRef<HTMLParagraphElement>(null)
   const onCompleteRef = useRef(onComplete)
+  const completedRef = useRef(false)
 
   useEffect(() => {
     onCompleteRef.current = onComplete
   }, [onComplete])
+
+  useEffect(() => {
+    const fallback = setTimeout(() => {
+      if (completedRef.current) return
+      completedRef.current = true
+      onCompleteRef.current()
+    }, 3200)
+    return () => clearTimeout(fallback)
+  }, [])
 
   useGSAP(
     () => {
@@ -49,6 +59,8 @@ export function BootScreen({ onComplete }: { onComplete: () => void }) {
       tl.to(containerRef.current, { opacity: 0, duration: 0.45, ease: 'power2.inOut' })
 
       tl.then(() => {
+        if (completedRef.current) return
+        completedRef.current = true
         onCompleteRef.current()
       })
     },
@@ -58,41 +70,46 @@ export function BootScreen({ onComplete }: { onComplete: () => void }) {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-boot bg-black flex flex-col items-center justify-center gap-9"
+      className="boot-screen fixed inset-0 z-boot flex flex-col items-center justify-center gap-9 bg-black"
     >
-      {/* Logo monogram — graphite squircle matching the dock icon language */}
+      <div className="boot-grid absolute inset-0" aria-hidden />
+      <div className="boot-scan absolute inset-x-0 top-0" aria-hidden />
+
       <div
         ref={logoRef}
         style={{
           opacity: 0,
-          borderRadius: '22.37%',
-          background: 'linear-gradient(160deg, #3a3a3c, #1c1c1e)',
+          borderRadius: '18%',
+          background:
+            'radial-gradient(circle at 34% 24%, rgba(215,255,47,0.88), rgba(255,61,0,0.56) 42%, rgba(0,0,0,0.92) 100%)',
           boxShadow:
-            'inset 0 1px 0.5px rgba(255,255,255,0.22), inset 0 0 0 0.5px rgba(255,255,255,0.06), 0 12px 32px rgba(0,0,0,0.55)',
+            'inset 0 1px 0.5px rgba(255,255,255,0.32), inset 0 0 0 1px rgba(255,255,255,0.16), 0 0 70px rgba(215,255,47,0.22), 0 18px 52px rgba(0,0,0,0.72)',
         }}
-        className="w-20 h-20 flex items-center justify-center"
+        className="relative flex h-20 w-20 items-center justify-center overflow-hidden border border-white/20"
       >
-        <span className="text-white font-bold text-4xl tracking-tighter select-none">M</span>
+        <span className="absolute inset-x-0 top-0 h-px bg-[#d7ff2f]/80" />
+        <span className="select-none font-display text-4xl font-semibold leading-none text-white">M</span>
       </div>
 
-      {/* Progress section */}
-      <div className="flex flex-col items-center gap-3.5 w-[180px]">
-        {/* Progress bar track */}
-        <div className="w-full h-[4px] bg-white/15 rounded-full overflow-hidden">
+      <div className="z-10 flex w-[220px] flex-col items-center gap-3.5">
+        <div className="flex w-full items-center justify-between font-mono text-[10px] uppercase text-white/42">
+          <span>boot</span>
+          <span>morris.os</span>
+        </div>
+        <div className="h-[5px] w-full overflow-hidden border border-white/15 bg-white/[0.08]">
           <div
             ref={progressBarRef}
             style={{ width: '0%' }}
-            className="h-full bg-white/85 rounded-full"
+            className="h-full bg-[#d7ff2f]"
           />
         </div>
 
-        {/* Quiet caption */}
         <p
           ref={textRef}
           style={{ opacity: 0 }}
-          className="text-white/40 text-xs font-normal tracking-normal select-none"
+          className="select-none font-mono text-[11px] uppercase text-white/48"
         >
-          Morris Yang
+          Product systems / AI / markets
         </p>
       </div>
     </div>

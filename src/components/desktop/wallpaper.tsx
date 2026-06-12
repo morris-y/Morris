@@ -1,81 +1,107 @@
 'use client'
 
+import { useEffect, useRef, type CSSProperties } from 'react'
+
 export function Wallpaper() {
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+
+    let frame = 0
+    const handlePointer = (event: PointerEvent) => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        root.style.setProperty('--cursor-x', `${event.clientX}px`)
+        root.style.setProperty('--cursor-y', `${event.clientY}px`)
+      })
+    }
+
+    window.addEventListener('pointermove', handlePointer)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('pointermove', handlePointer)
+    }
+  }, [])
+
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none">
-      {/* Base layer — vivid Tahoe fluid gradient (violet/magenta/blue/teal over deep indigo→near-black) */}
+    <div
+      ref={rootRef}
+      className="fixed inset-0 overflow-hidden pointer-events-none"
+      style={{
+        '--cursor-x': '50vw',
+        '--cursor-y': '42vh',
+      } as CSSProperties}
+    >
       <div className="wallpaper-tahoe absolute inset-0" />
+      <div className="wallpaper-chromatic absolute inset-0" />
+      <div className="wallpaper-cursor-field absolute inset-0" />
+      <div className="wallpaper-grid absolute inset-0" />
+      <div className="wallpaper-scanline absolute left-0 right-0 top-0" />
 
-      {/* Drifting bloom layers — large, soft, saturated glows the glass above will refract.
-          Animate transform/opacity only (via .bloom-1 / .bloom-2). */}
-
-      {/* Bloom A — violet, upper-left bloom that breathes outward */}
       <div
         className="bloom-1 absolute"
         style={{
-          top: '-18%',
-          left: '-12%',
-          width: '70%',
-          height: '70%',
+          top: '-24%',
+          left: '-10%',
+          width: '68%',
+          height: '68%',
           background:
-            'radial-gradient(circle at 50% 50%, rgba(138, 92, 255, 0.50) 0%, rgba(124, 77, 255, 0.22) 42%, transparent 70%)',
-          filter: 'blur(80px)',
+            'radial-gradient(circle at 50% 50%, rgba(214, 255, 0, 0.28) 0%, rgba(166, 255, 0, 0.12) 38%, transparent 68%)',
+          filter: 'blur(66px)',
           willChange: 'transform',
         }}
       />
 
-      {/* Bloom B — magenta/pink, lower-right counterweight */}
       <div
         className="bloom-2 absolute"
         style={{
-          bottom: '-22%',
-          right: '-14%',
-          width: '72%',
-          height: '72%',
+          bottom: '-28%',
+          right: '-18%',
+          width: '76%',
+          height: '76%',
           background:
-            'radial-gradient(circle at 50% 50%, rgba(255, 74, 188, 0.46) 0%, rgba(214, 56, 168, 0.20) 44%, transparent 70%)',
-          filter: 'blur(88px)',
+            'radial-gradient(circle at 50% 50%, rgba(255, 64, 0, 0.36) 0%, rgba(255, 0, 128, 0.14) 42%, transparent 72%)',
+          filter: 'blur(78px)',
           willChange: 'transform',
         }}
       />
 
-      {/* Bloom C — electric blue + teal, mid-right; slowest drift for parallax depth */}
       <div
         className="bloom-1 absolute"
         style={{
-          top: '26%',
-          right: '-8%',
-          width: '52%',
-          height: '52%',
+          top: '18%',
+          right: '-12%',
+          width: '54%',
+          height: '54%',
           background:
-            'radial-gradient(circle at 50% 50%, rgba(64, 150, 255, 0.42) 0%, rgba(40, 210, 200, 0.18) 46%, transparent 72%)',
-          filter: 'blur(72px)',
-          animationDuration: '52s',
-          animationDelay: '-8s',
+            'radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.30) 0%, rgba(0, 142, 255, 0.12) 44%, transparent 72%)',
+          filter: 'blur(70px)',
+          animationDuration: '46s',
+          animationDelay: '-9s',
           willChange: 'transform',
         }}
       />
 
-      {/* Very faint EDGE vignette — keeps the center glow rich, only softens the frame */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(130% 120% at 50% 45%, transparent 62%, rgba(6, 5, 14, 0.34) 100%)',
+            'radial-gradient(120% 110% at 50% 42%, transparent 56%, rgba(0, 0, 0, 0.72) 100%)',
         }}
       />
 
-      {/* Static fine grain — never animates (no shimmer). Adds material texture under the glass. */}
       <svg
         className="absolute inset-0 h-full w-full"
-        style={{ opacity: 0.02, mixBlendMode: 'overlay' }}
+        style={{ opacity: 0.17, mixBlendMode: 'soft-light' }}
         aria-hidden="true"
       >
         <filter id="wallpaper-grain">
           <feTurbulence
             type="fractalNoise"
-            baseFrequency="0.8"
-            numOctaves="2"
+            baseFrequency="0.92"
+            numOctaves="3"
             stitchTiles="stitch"
           />
           <feColorMatrix type="saturate" values="0" />
