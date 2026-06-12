@@ -174,14 +174,14 @@ export function Dock() {
   const handleMouseLeave = useCallback(() => mouseX.set(Infinity), [mouseX])
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-3 z-dock flex justify-center">
+    <div className="dock-shell pointer-events-none fixed inset-x-0 bottom-3 z-dock flex justify-center max-[860px]:bottom-1">
       {/*
        * Two-layer dock: glass pill (absolute, fixed height) sits behind icons.
        * Icons live in a transparent flex row that grows upward when magnified —
        * decoupled from backdrop-filter so Chrome never clips the overflow.
        */}
       <div
-        className="pointer-events-auto relative flex items-end gap-[10px] px-3 py-2"
+        className="dock-row pointer-events-auto relative flex origin-bottom items-end gap-[10px] px-3 py-2 max-[860px]:scale-[0.82] max-[640px]:scale-[0.68]"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >

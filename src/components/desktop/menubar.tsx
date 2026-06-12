@@ -118,7 +118,7 @@ function MenuButton({
         }}
         onClick={() => onToggle(id)}
         className={[
-          'flex h-os-menubar items-center rounded-md leading-none select-none transition-colors',
+          'flex h-os-menubar items-center rounded-md leading-none select-none outline-none transition-colors focus-visible:bg-white/15',
           iconOnly ? 'px-2' : 'px-2.5',
           bold ? 'text-[13px] font-semibold' : 'text-[13px]',
           isOpen ? 'bg-white/15 text-white' : 'text-white/85 hover:bg-white/10',
@@ -130,7 +130,7 @@ function MenuButton({
       {isOpen ? (
         <div
           role="menu"
-          className="glass-panel absolute left-0 top-[calc(100%+5px)] z-menu-dropdown min-w-[210px] rounded-lg p-1"
+          className="glass-panel glass-menu-panel absolute left-0 top-[calc(100%+5px)] z-menu-dropdown min-w-[210px] rounded-lg p-1"
         >
           {panel}
         </div>

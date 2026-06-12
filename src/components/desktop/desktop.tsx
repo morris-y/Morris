@@ -16,6 +16,7 @@ import type { AppId } from '@/types/window'
 
 // Desktop shortcut apps (top-left grid)
 const DESKTOP_SHORTCUTS: AppId[] = ['notes', 'terminal', 'projects']
+const SIGNAL_SEQUENCE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
 
 interface ContextMenuState {
   x: number
@@ -51,6 +52,9 @@ export function Desktop() {
   const [selectedIcon, setSelectedIcon] = useState<AppId | null>(null)
   const [launchingIcon, setLaunchingIcon] = useState<AppId | null>(null)
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
+  const [signalOpen, setSignalOpen] = useState(false)
+  const signalSequenceRef = useRef<string[]>([])
+  const signalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // All windows live in ONE always-mounted list; a window not on the current
   // Space is hidden (display:none) rather than unmounted — so app state survives
@@ -156,6 +160,24 @@ export function Desktop() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       const mod = e.metaKey || e.ctrlKey
+      const target = e.target as HTMLElement | null
+      const isEditable =
+        target?.tagName === 'INPUT' ||
+        target?.tagName === 'TEXTAREA' ||
+        target?.isContentEditable
+
+      if (!isEditable) {
+        signalSequenceRef.current = [...signalSequenceRef.current, e.key].slice(-SIGNAL_SEQUENCE.length)
+        const unlocked = SIGNAL_SEQUENCE.every(
+          (key, index) => signalSequenceRef.current[index] === key
+        )
+        if (unlocked) {
+          setSignalOpen(true)
+          signalSequenceRef.current = []
+          if (signalTimerRef.current) clearTimeout(signalTimerRef.current)
+          signalTimerRef.current = setTimeout(() => setSignalOpen(false), 7200)
+        }
+      }
 
       // Mission Control — Ctrl+Up or F3 (F3 guarded against stray modifiers)
       if (
@@ -255,6 +277,13 @@ export function Desktop() {
     stepSpace,
   ])
 
+  useEffect(
+    () => () => {
+      if (signalTimerRef.current) clearTimeout(signalTimerRef.current)
+    },
+    []
+  )
+
   // Menubar (and any other surface) can open Spotlight via a custom event
   useEffect(() => {
     const open = () => setSpotlightOpen(true)
@@ -276,9 +305,10 @@ export function Desktop() {
       >
         <Wallpaper />
         <Menubar />
+        <DesktopAtmosphere signalOpen={signalOpen} />
 
         {/* Desktop shortcut icons — top-left (covered by a fullscreen window) */}
-        <div className="absolute top-[168px] left-4 flex flex-col gap-5 select-none">
+        <div className="absolute top-[154px] left-4 flex flex-col gap-5 select-none">
           {DESKTOP_SHORTCUTS.map((appId) => {
             const appDef = getAppById(appId)
             if (!appDef) return null
@@ -317,7 +347,7 @@ export function Desktop() {
                 <span
                   className={`text-[12px] leading-tight text-center px-1.5 py-0.5 rounded-md ${
                     selected
-                      ? 'bg-[#0a84ff] text-white'
+                      ? 'bg-[#d7ff2f] text-black'
                       : 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]'
                   }`}
                 >
@@ -378,6 +408,10 @@ export function Desktop() {
         </div>
 
         <Dock />
+
+        <AnimatePresence>
+          {signalOpen ? <SignalOverlay /> : null}
+        </AnimatePresence>
       </div>
 
       {/* Desktop context menu */}
@@ -407,6 +441,111 @@ export function Desktop() {
       {/* Mission Control — Spaces + window spread (Ctrl↑ / F3 / menubar button) */}
       <MissionControl />
     </>
+  )
+}
+
+function DesktopAtmosphere({
+  signalOpen,
+}: {
+  signalOpen: boolean
+}) {
+  const statusItems = [
+    ['MODE', signalOpen ? 'SIGNAL' : 'BUILD'],
+    ['FOCUS', 'AI / MARKETS / SYSTEMS'],
+    ['LOCAL', 'TAIPEI'],
+    ['YEAR', '2026'],
+  ]
+  const signalItems = [
+    'Selected works',
+    'Motion-first product systems',
+    'Human texture over template polish',
+    'Open signal',
+  ]
+
+  return (
+    <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
+      <motion.div
+        className="desktop-hero-type absolute left-[96px] right-5 top-12"
+        initial={{ opacity: 0, y: 28, filter: 'blur(8px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="flex items-start justify-between gap-5">
+          <div>
+            <p className="font-mono text-[11px] uppercase text-[#d7ff2f]">
+              Morris Yang / Product Builder
+            </p>
+            <h1 className="mt-3 font-display text-7xl leading-none text-white sm:text-9xl lg:text-[12rem]">
+              MORRIS
+            </h1>
+          </div>
+          <div className="hidden max-w-[320px] pt-5 text-right font-mono text-[11px] uppercase leading-5 text-white/60 md:block">
+            <p>Prediction markets</p>
+            <p>AI workflows</p>
+            <p>Operating interfaces</p>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="desktop-status-rail grid gap-px"
+        initial={{ opacity: 0, x: -22, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+        transition={{ delay: 0.35, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      >
+        {statusItems.map(([label, value], index) => (
+          <div key={label} className="desktop-status-cell px-3 py-2">
+            <span className="block font-mono text-[10px] text-white/42">{label}</span>
+            <span className="mt-1 block truncate font-mono text-[12px] uppercase text-white/85">
+              {value}
+            </span>
+            <span
+              className="desktop-cell-meter mt-2 block h-px"
+              style={{ animationDelay: `${index * 0.35}s` }}
+            />
+          </div>
+        ))}
+      </motion.div>
+
+      <motion.div
+        className="desktop-signal-strip"
+        initial={{ opacity: 0, x: 24 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.55, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="desktop-signal-track">
+          {[...signalItems, ...signalItems, ...signalItems].map((item, index) => (
+            <span key={`${item}-${index}`}>{item}</span>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+function SignalOverlay() {
+  return (
+    <motion.div
+      className="signal-overlay pointer-events-none fixed inset-0 z-[8500] flex items-center justify-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+    >
+      <motion.div
+        className="signal-core px-6 py-5 text-center"
+        initial={{ scale: 0.86, rotate: -1.5 }}
+        animate={{ scale: 1, rotate: 0 }}
+        exit={{ scale: 1.08, rotate: 1.5 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+      >
+        <p className="font-mono text-[11px] uppercase text-[#d7ff2f]">hidden signal unlocked</p>
+        <p className="mt-2 font-display text-5xl leading-none text-white sm:text-7xl">20:26</p>
+        <p className="mt-2 font-mono text-[11px] uppercase text-white/60">
+          Portfolio machine is now dreaming in public
+        </p>
+      </motion.div>
+    </motion.div>
   )
 }
 
