@@ -129,17 +129,10 @@
 </ul>
 
 <h2>7. How long data is kept, and how to delete it</h2>
-<!--
-  TODO(report-deletion): Another session is changing the extension so that deleting a recording
-  also deletes the reports generated from it. When that ships, rewrite the "Reports" item below
-  (remove "Deleting a recording does not remove reports already generated from it" and
-  "To remove every report, uninstall the extension"), update the effective date, and republish.
-  Until then this section matches the current code (extension/db.js: deleting a run removes only runs + shots).
--->
 
 <ul>
-  <li><strong>Recordings</strong> are kept until you delete them. Open the extension's Preview page and choose delete this recording (刪除這次錄製); the recording and its screenshots are removed after a 5-second undo window. On the page shown after you stop recording you can also discard the recording you just made (放棄這段錄製).</li>
-  <li><strong>Reports</strong> are copies. The extension keeps the 5 most recent reports; an older one is removed when a newer one is generated. <strong>Deleting a recording does not remove reports already generated from it.</strong> To remove every report, uninstall the extension.</li>
+  <li><strong>Recordings</strong> are kept until you delete them. Open the extension's Preview page and choose delete this recording (刪除這次錄製); after a 5-second undo window, the recording, its screenshots and every report built from it are removed. On the page shown after you stop recording you can also discard the recording you just made (放棄這段錄製); this removes what was already saved of it, together with any report built from it. If a recording could not be saved normally, discarding it keeps what was already stored; it then appears in Preview as not finished (未正常結束), and you can delete it there.</li>
+  <li><strong>Reports</strong> are built from your recordings and contain copies of their screenshots and network data. The extension keeps the 5 most recent reports; when a newer one is generated, the oldest is removed. <strong>Deleting a recording also deletes every report built from it.</strong> There is no separate button to delete a single report: delete a recording it was built from, or it is removed once 5 newer reports exist.</li>
   <li><strong>Session data</strong> (recording state, note drafts) is removed when you save or discard a recording, and when the browser closes.</li>
   <li><strong>Everything at once:</strong> uninstalling Stepstack (chrome://extensions → Remove) deletes all of its stored data from your browser.</li>
   <li><strong>Downloaded ZIP files</strong> are ordinary files on your computer. Delete them as you would any file.</li>
