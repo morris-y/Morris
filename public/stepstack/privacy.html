@@ -85,7 +85,7 @@
     <tr><td>Page content summary</td><td>A short summary of the visible text, options, buttons and field labels on each step (at most about 4 KB). Values you typed and email addresses are replaced with placeholders in this summary.</td></tr>
     <tr><td>Your actions</td><td>Clicks, pressing Enter in a field, and the value of a form field when you finish editing it. Mouse movement, scrolling and individual keystrokes are not recorded.</td></tr>
     <tr><td>Form values</td><td>Passwords, one-time codes, and fields that look like card numbers, CVCs, social security numbers, tokens, keys or recovery phrases are stored as <code>••••</code>. <strong>Other fields are stored as typed</strong> (up to 120 characters), for example a name, email address or phone number.</td></tr>
-    <tr><td>Network requests</td><td>For the site's page, API (XHR / fetch) and analytics requests: method, URL, status, content type, and the body of JSON or form requests and of successful JSON responses (up to 200 KB). For WebSocket connections only the URL is kept, not the messages. Request and response headers and cookies are not stored.</td></tr>
+    <tr><td>Network requests</td><td>For the site's page, API (XHR / fetch), server-sent event (EventSource), beacon and analytics requests: method, URL, status, content type, and the body of JSON or form requests and of successful JSON responses (up to 200 KB). For WebSocket connections only the URL is kept, not the messages; the event stream of a server-sent event connection is not kept either. Request and response headers and cookies are not stored.</td></tr>
     <tr><td>Your notes</td><td>A title and product name you give a recording (in the pop-up, on the Save recording page or on the Recordings page), and any notes you type or paste on the Save recording page (儲存錄製), which opens after you stop recording.</td></tr>
   </tbody>
 </table>
@@ -108,7 +108,7 @@
 <ul>
   <li>Recordings, screenshots and generated reports are stored in the extension's own storage in your browser (IndexedDB) on your device.</li>
   <li>The state of a recording in progress and an unsaved draft of your notes are kept in Chrome's session storage, which is cleared when the browser closes.</li>
-  <li>Your display settings (theme, keyboard shortcuts) and which tips have been shown are kept in Chrome's local extension storage.</li>
+  <li>Your display settings (theme, keyboard shortcuts) and which tips have been shown are kept in Chrome's local extension storage. The extension pages also keep a copy of the display settings in their own local browser storage, so the right theme shows before a page finishes loading. If you open an exported report, its theme choice is kept in that browser's local storage.</li>
   <li>The extension requests unlimited storage so that long recordings with many screenshots fit.</li>
 </ul>
 
