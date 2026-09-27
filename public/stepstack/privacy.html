@@ -53,14 +53,14 @@
 <body>
 <main>
 <h1>Stepstack Privacy Policy</h1>
-<p class="meta">Effective date: September 27, 2026</p>
+<p class="meta">Effective date: September 28, 2026</p>
 
 <div class="summary">
   <p><strong>In short</strong></p>
   <ul>
-    <li>Stepstack records a website flow only when you start a recording, and only in that tab.</li>
+    <li>Stepstack records a website flow only when you start a recording, and only in that tab and the tabs or pop-ups it opens on the same site (including common sign-in pop-ups).</li>
     <li>Everything it records stays in your browser on your device. We have no servers and receive none of your data.</li>
-    <li>Data leaves your device only when you download a report file yourself.</li>
+    <li>Data leaves your device only when you download a report file yourself. The handover text that is then copied to your clipboard is not sent anywhere by the extension.</li>
     <li><strong>Screenshots are not redacted.</strong> Anything visible on screen while recording ends up in the screenshots.</li>
   </ul>
 </div>
@@ -71,8 +71,8 @@
 <h2>2. When data is recorded</h2>
 <ul>
   <li>Recording starts only when you click the start-recording button (開始錄製) in the extension's pop-up or press its recording shortcut (Alt+Shift+R by default).</li>
-  <li>Only the tab where you started is recorded, plus tabs it opens (such as a login pop-up) while they stay on the same site.</li>
-  <li>A recording is limited to the site you started on (its domain and subdomains), any extra domain you add, and common sign-in and payment pages a flow passes through (for example Google, Apple and Microsoft sign-in, Stripe Checkout, PayPal). If the tab goes to another site, recording pauses.</li>
+  <li>Only the tab where you started is recorded, plus tabs and pop-ups that a recorded tab opens, while their page is inside the recording's scope (below). A pop-up for one of the common sign-in or payment pages listed below is recorded too. A new tab that opens on another site is not recorded unless it moves into the scope.</li>
+  <li>A recording is limited to the site you started on (its domain and subdomains), any extra domain you add, and common sign-in and payment pages a flow passes through (for example Google, Apple and Microsoft sign-in, Stripe Checkout, PayPal). If the tab where you started goes to another site, the whole recording pauses. If another recorded tab goes to another site, nothing from that tab is recorded until it comes back.</li>
   <li>While recording, Chrome shows a bar saying the extension is debugging the browser, and a REC indicator appears on the page. Cancelling Chrome's bar stops the recording.</li>
 </ul>
 
@@ -116,6 +116,7 @@
 <p><strong>Nothing, unless you export it.</strong> Stepstack has no servers. It does not send recordings, analytics, crash reports or usage data to us or to anyone else. It loads no code, fonts or other resources from the internet.</p>
 <ul>
   <li><strong>Downloaded reports.</strong> When you click the download button (下載 zip) on a report, a ZIP file with the report is saved to your computer. By default it does not include the raw request and response data; it does only if you tick the include-raw-data box (包含原始資料). What happens to the file afterwards — for example if you share it or give it to an AI tool — is up to you, and that recipient's own privacy terms apply.</li>
+  <li><strong>Handover text on your clipboard.</strong> After the download finishes, the extension copies a short handover text to your clipboard, replacing what was there. It contains the location of the ZIP file on your computer and short instructions for an AI coding tool. The file location usually includes your user folder name (for example <code>/Users/&lt;name&gt;/Downloads/…</code>). The extension does not send this text anywhere; it stays on your device until you paste it somewhere. If copying does not work, a button to copy it appears instead. If your system syncs the clipboard to other devices, your system's settings apply.</li>
   <li><strong>Links you click.</strong> If you click an external link inside a report, it opens in a new tab like any other link. The report-a-problem link (回報問題) on the extension's help page opens your own email app with a new message that has the extension version in its subject; nothing is sent unless you send that email yourself.</li>
   <li><strong>Other tools.</strong> If you use a separate dictation or speech-to-text tool to write your notes, that tool is not part of Stepstack. Stepstack itself does not access your microphone.</li>
 </ul>
@@ -142,11 +143,12 @@
 <table>
   <thead><tr><th>Permission</th><th>Why</th></tr></thead>
   <tbody>
-    <tr><td><code>debugger</code></td><td>Take screenshots and read the network requests of the tab you are recording. Used only while that tab is recording.</td></tr>
+    <tr><td><code>debugger</code></td><td>Take screenshots and read the network requests of the tabs you are recording. Used only while a recording is running.</td></tr>
+    <tr><td><code>downloads</code></td><td>Save the report ZIP when you click the download button, and learn where the ZIP you just downloaded was saved, so the location can go into the handover text. The extension looks up only that one download. It never reads, lists or opens your other downloads. While its own download is in progress, Chrome also notifies the extension when other downloads change; the extension ignores those notifications and stores nothing from them.</td></tr>
     <tr><td><code>storage</code></td><td>Keep the recording state, note drafts and your settings.</td></tr>
     <tr><td><code>unlimitedStorage</code></td><td>Store recordings with many screenshots on your device.</td></tr>
     <tr><td><code>scripting</code></td><td>Add the extension's own bundled page script to a tab that was open before the extension was installed, so it can be recorded without reloading.</td></tr>
-    <tr><td>Access to all sites</td><td>You can choose to record any website, so the extension must be able to run on the site you pick. This access also lets it see the address of the tab you record, so it can keep the recording to that site and follow pop-ups the tab opens (such as a sign-in window).</td></tr>
+    <tr><td>Access to all sites</td><td>You can choose to record any website, so the extension must be able to run on the site you pick. This access also lets it see the page address of each tab you record, so it can keep the recording to that site and follow the tabs and pop-ups a recorded tab opens on the same site, including common sign-in and payment pop-ups.</td></tr>
   </tbody>
 </table>
 
