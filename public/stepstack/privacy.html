@@ -53,14 +53,14 @@
 <body>
 <main>
 <h1>Stepstack Privacy Policy</h1>
-<p class="meta">Effective date: September 28, 2026</p>
+<p class="meta">Effective date: October 1, 2026</p>
 
 <div class="summary">
   <p><strong>In short</strong></p>
   <ul>
     <li>Stepstack records a website flow only when you start a recording, and only in that tab and the tabs or pop-ups it opens on the same site (including common sign-in pop-ups).</li>
     <li>Everything it records stays in your browser on your device. We have no servers and receive none of your data.</li>
-    <li>Data leaves your device only when you download a report file yourself. The handover text that is then copied to your clipboard is not sent anywhere by the extension.</li>
+    <li>Data leaves your device only when you download a report file yourself. Every downloaded report ZIP includes the raw network data, redacted the same way as the report. It can still contain personal data the site returned. The handover text that is then copied to your clipboard is not sent anywhere by the extension.</li>
     <li><strong>Screenshots are not redacted.</strong> Anything visible on screen while recording ends up in the screenshots.</li>
   </ul>
 </div>
@@ -108,15 +108,15 @@
 <ul>
   <li>Recordings, screenshots and generated reports are stored in the extension's own storage in your browser (IndexedDB) on your device.</li>
   <li>The state of a recording in progress and an unsaved draft of your notes are kept in Chrome's session storage, which is cleared when the browser closes.</li>
-  <li>Your display settings (theme, keyboard shortcuts) and which tips have been shown are kept in Chrome's local extension storage. The extension pages also keep a copy of the display settings in their own local browser storage, so the right theme shows before a page finishes loading. If you open an exported report, its theme choice is kept in that browser's local storage.</li>
+  <li>Your settings (theme, keyboard shortcuts, interface language) and which tips have been shown are kept in Chrome's local extension storage. The extension pages also keep a copy of these settings in their own local browser storage, so the right theme shows before a page finishes loading. If you open an exported report, its theme choice is kept in that browser's local storage.</li>
   <li>The extension requests unlimited storage so that long recordings with many screenshots fit.</li>
 </ul>
 
 <h2>5. What leaves your device</h2>
 <p><strong>Nothing, unless you export it.</strong> Stepstack has no servers. It does not send recordings, analytics, crash reports or usage data to us or to anyone else. It loads no code, fonts or other resources from the internet.</p>
 <ul>
-  <li><strong>Downloaded reports.</strong> When you click the download button (下載 zip) on a report, a ZIP file with the report is saved to your computer. By default it does not include the raw request and response data; it does only if you tick the include-raw-data box (包含原始資料). What happens to the file afterwards — for example if you share it or give it to an AI tool — is up to you, and that recipient's own privacy terms apply.</li>
-  <li><strong>Handover text on your clipboard.</strong> After the download finishes, the extension copies a short handover text to your clipboard, replacing what was there. It contains the location of the ZIP file on your computer and short instructions for an AI coding tool. The file location usually includes your user folder name (for example <code>/Users/&lt;name&gt;/Downloads/…</code>). The extension does not send this text anywhere; it stays on your device until you paste it somewhere. If copying does not work, a button to copy it appears instead. If your system syncs the clipboard to other devices, your system's settings apply.</li>
+  <li><strong>Downloaded reports.</strong> When you click the download button (下載 zip) on a report, a ZIP file with the report is saved to your computer. Every ZIP also includes a <code>raw</code> folder with the recording's raw network data: the requests the site made and the responses it sent back. This data goes through the same redaction as the report (see Redaction and its limits above), so it can still contain personal data the site returned, such as names or email addresses. It leaves your device only if you share the ZIP. What happens to the file afterwards — for example if you share it or give it to an AI tool — is up to you, and that recipient's own privacy terms apply.</li>
+  <li><strong>Handover text on your clipboard.</strong> After the download finishes, the extension copies a short handover text to your clipboard, replacing what was there. It contains the location of the ZIP file on your computer, short instructions for an AI coding tool, and a reminder that the <code>raw</code> folder may contain personal data and should stay on your computer. The file location usually includes your user folder name (for example <code>/Users/&lt;name&gt;/Downloads/…</code>). The extension does not send this text anywhere; it stays on your device until you paste it somewhere. If copying does not work, a button to copy it appears instead. If your system syncs the clipboard to other devices, your system's settings apply.</li>
   <li><strong>Links you click.</strong> If you click an external link inside a report, it opens in a new tab like any other link. The report-a-problem link (回報問題) on the extension's help page opens your own email app with a new message that has the extension version in its subject; nothing is sent unless you send that email yourself.</li>
   <li><strong>Other tools.</strong> If you use a separate dictation or speech-to-text tool to write your notes, that tool is not part of Stepstack. Stepstack itself does not access your microphone.</li>
 </ul>
